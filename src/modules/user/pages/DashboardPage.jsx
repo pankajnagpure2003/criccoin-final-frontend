@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../../../api/authClient.js";
+import { getWallet } from "../api/deposit.api.js";
 import { getMe, logoutUser } from "../api/userAuth.api.js";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [balanceUsdt, setBalanceUsdt] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -20,6 +22,9 @@ export default function DashboardPage() {
         setError(err.message);
         logoutUser();
       });
+    getWallet()
+      .then((data) => setBalanceUsdt(data.wallet?.availableUsdt ?? data.wallet?.balanceUsdt ?? 0))
+      .catch(() => setBalanceUsdt(null));
   }, [navigate]);
 
   if (error) {
@@ -37,6 +42,10 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="stats">
+        <article className="stat-card">
+          <p>Wallet</p>
+          <strong>{balanceUsdt === null ? "-" : `${Number(balanceUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
+        </article>
         <article className="stat-card">
           <p>Referral code</p>
           <strong>{profile.user.referralCode}</strong>

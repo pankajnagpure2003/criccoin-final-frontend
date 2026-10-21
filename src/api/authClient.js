@@ -95,6 +95,59 @@ export class AuthClient {
   post(path, body, options = {}) {
     return this.request(path, { ...options, method: "POST", body });
   }
+
+  put(path, body, options = {}) {
+    return this.request(path, { ...options, method: "PUT", body });
+  }
+
+  async postForm(path, formData, { auth = false, role = "user" } = {}) {
+    const headers = { Accept: "application/json" };
+    if (auth) {
+      const token = this.getToken(role);
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (res.status === 401 && auth) {
+        this.clearSession(role);
+      }
+      const error = new Error(data.message || "Request failed");
+      error.status = res.status;
+      error.data = data;
+      throw error;
+    }
+    return data;
+  }
+
+  async getBlob(path, { auth = false, role = "user" } = {}) {
+    const headers = {};
+    if (auth) {
+      const token = this.getToken(role);
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    const res = await fetch(`${this.baseUrl}${path}`, { headers });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && auth) {
+        this.clearSession(role);
+      }
+      const error = new Error(data.message || "Request failed");
+      error.status = res.status;
+      throw error;
+    }
+    return res.blob();
+  }
 }
 
 export const authClient = new AuthClient(API_URL);

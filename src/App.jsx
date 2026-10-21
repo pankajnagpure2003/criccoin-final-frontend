@@ -7,10 +7,16 @@ import ForgotPasswordPage from "./modules/user/pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./modules/user/pages/ResetPasswordPage.jsx";
 import UserLayout from "./modules/user/layout/UserLayout.jsx";
 import DashboardPage from "./modules/user/pages/DashboardPage.jsx";
+import DepositPage from "./modules/user/pages/DepositPage.jsx";
+import WithdrawPage from "./modules/user/pages/WithdrawPage.jsx";
 import ReferralPage from "./modules/user/pages/ReferralPage.jsx";
 import ProfilePage from "./modules/user/pages/ProfilePage.jsx";
 import AdminLoginPage from "./modules/admin/pages/AdminLoginPage.jsx";
+import AdminLayout from "./modules/admin/layout/AdminLayout.jsx";
 import AdminUsersPage from "./modules/admin/pages/AdminUsersPage.jsx";
+import AdminDepositsPage from "./modules/admin/pages/AdminDepositsPage.jsx";
+import AdminWithdrawalsPage from "./modules/admin/pages/AdminWithdrawalsPage.jsx";
+import AdminPaymentSetupPage from "./modules/admin/pages/AdminPaymentSetupPage.jsx";
 
 export default function App() {
   return (
@@ -23,12 +29,19 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/dashboard" element={<UserLayout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="deposit" element={<DepositPage />} />
+        <Route path="withdraw" element={<WithdrawPage />} />
         <Route path="referral" element={<ReferralPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="/admin/login" element={<AdminLoginPage />} />
-      <Route path="/admin/users" element={<AdminUsersPage />} />
-      <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="/admin/users" replace />} />
+        <Route path="users" element={<AdminUsersPage />} />
+        <Route path="deposits" element={<AdminDepositsPage />} />
+        <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+        <Route path="payment-setup" element={<AdminPaymentSetupPage />} />
+      </Route>
     </Routes>
   );
 }
