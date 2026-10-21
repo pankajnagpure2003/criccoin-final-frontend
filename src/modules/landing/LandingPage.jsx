@@ -41,7 +41,6 @@ export default function LandingPage() {
   const openLegal = (type) => setLegalModal({ isOpen: true, type });
 
   return (
-<<<<<<< HEAD
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-[#050606] text-white flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-white">
         <AnimatePresence>
@@ -122,22 +121,5 @@ export default function LandingPage() {
         </AnimatePresence>
       </div>
     </MotionConfig>
-=======
-    <main className="landing">
-      <div className="brand">
-        <span className="brand-mark">Criccoin</span>
-      </div>
-      <h1>Hello World</h1>
-      <p className="lead">Trade · Invest · Grow</p>
-      <div className="landing-actions">
-        <Link className="gold-btn compact" to="/signup">
-          Sign Up
-        </Link>
-        <Link className="ghost-btn" to="/login">
-          Sign In
-        </Link>
-      </div>
-    </main>
->>>>>>> 47a90878edbbfd8c10e6069342f5d13748c0e86a
   );
 }

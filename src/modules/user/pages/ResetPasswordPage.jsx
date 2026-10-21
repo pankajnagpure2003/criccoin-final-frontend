@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
         </button>
       </p>
       <p className="auth-footer">
-        <Link to="/login">Back to sign in</Link>
+        <Link to="/login">Back to Log in</Link>
       </p>
     </AuthShell>
   );

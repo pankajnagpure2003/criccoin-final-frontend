@@ -166,7 +166,7 @@ export default function Footer({ onOpenLegal, onScrollTo }) {
                 <button
                   key={link.label}
                   onClick={() => handleLinkClick(link.href)}
-                  className="text-left text-[#C6C6C6] hover:text-[#FFD76A] py-1 transition-colors"
+                  className="border-0 bg-transparent text-left text-[#C6C6C6] hover:text-[#FFD76A] py-1 transition-colors"
                 >
                   {link.label}
                 </button>
@@ -184,7 +184,7 @@ export default function Footer({ onOpenLegal, onScrollTo }) {
                 <button
                   key={item.label}
                   onClick={() => onOpenLegal?.(item.type)}
-                  className="block text-left text-xs text-[#C6C6C6] hover:text-[#FFD76A] transition-colors"
+                  className="block border-0 bg-transparent p-0 text-left text-xs text-[#C6C6C6] hover:text-[#FFD76A] transition-colors"
                 >
                   {item.label}
                 </button>
