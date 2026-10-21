@@ -1,0 +1,549 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+.max-w-10xl {
+  max-width: 90rem;
+}
+
+/* =========================================
+   CRICCOIN — PREMIUM GLOBAL STYLES
+========================================= */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 90px;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    background-color: #050606;
+    color: #ffffff;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+  }
+
+  p {
+    line-height: 1.75;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  img,
+  video,
+  svg {
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    display: block;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(198, 198, 198, 0.55);
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid #FFD76A;
+    outline-offset: 4px;
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* =========================================
+   PREMIUM TYPOGRAPHY
+========================================= */
+
+.font-heading {
+  font-family: 'Manrope', sans-serif;
+}
+
+.font-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-cursive {
+  font-family: 'Caveat', cursive;
+}
+
+.hero-heading {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.section-heading {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.body-copy {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+}
+
+.nav-link {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050606;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4AF37, #996515);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD76A;
+}
+
+/* =========================================
+   LUXURY GOLD TEXT GRADIENT
+========================================= */
+
+.gold-gradient-text {
+  background: linear-gradient(
+    135deg,
+    #FFF1B8 0%,
+    #FFD76A 25%,
+    #E5A83B 50%,
+    #F5BE45 75%,
+    #D4AF37 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (max-width: 767px) {
+  .hero-heading-mobile-motion {
+    animation: heroHeadingRun 1.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroHeadingRun {
+    from {
+      transform: translateX(-7px);
+    }
+    to {
+      transform: translateX(7px);
+    }
+  }
+}
+
+.gold-gradient-subtle {
+  background: linear-gradient(
+    135deg,
+    #FFE89E 0%,
+    #D4AF37 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================
+   GOLD SEPARATOR
+========================================= */
+
+.gold-separator {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.1) 15%,
+    rgba(212, 175, 55, 0.7) 50%,
+    rgba(212, 175, 55, 0.1) 85%,
+    transparent 100%
+  );
+}
+
+.gold-separator::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: #FFD76A;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px #FFD76A, 0 0 20px #D4AF37;
+}
+
+/* =========================================
+   SECTION LABEL
+========================================= */
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #E5A83B;
+}
+
+/* =========================================
+   PRIMARY BUTTON
+========================================= */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.85rem;
+  border: 1px solid rgba(255, 235, 160, 0.5);
+  border-radius: 9999px;
+  background: linear-gradient(
+    135deg,
+    #F3C350 0%,
+    #E5A83B 50%,
+    #C89228 100%
+  );
+  color: #050606;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-decoration: none;
+  box-shadow:
+    0 4px 20px rgba(229, 168, 59, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    #FFE27D 0%,
+    #F3C350 50%,
+    #D89F30 100%
+  );
+  box-shadow:
+    0 6px 30px rgba(229, 168, 59, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  color: #000000;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   SECONDARY BUTTON
+========================================= */
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.85rem;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 9999px;
+  background: rgba(18, 17, 14, 0.7);
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #FFD76A;
+  background: rgba(212, 175, 55, 0.12);
+  color: #FFD76A;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   GLASS CARD
+========================================= */
+
+.glass-panel {
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(18, 17, 15, 0.85) 0%,
+    rgba(10, 10, 9, 0.92) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s ease;
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(229, 168, 59, 0.55);
+  box-shadow:
+    0 12px 35px -8px rgba(212, 175, 55, 0.15),
+    0 0 0 1px rgba(229, 168, 59, 0.2);
+  transform: translateY(-3px);
+}
+
+/* =========================================
+   AMBIENT GOLD GLOW
+========================================= */
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.65;
+    transform: scale(1.08);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+/* =========================================
+   FLOATING COIN
+========================================= */
+
+@keyframes floatCoin {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+.animate-float-coin {
+  animation: floatCoin 5s ease-in-out infinite;
+}
+
+/* =========================================
+   SHIMMER EFFECT
+========================================= */
+
+@keyframes shimmerWave {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 235, 160, 0.15),
+    transparent
+  );
+  animation: shimmerWave 3.5s infinite;
+  pointer-events: none;
+}
+
+/* =========================================
+   RESPONSIVE HELPERS
+========================================= */
+
+.container-premium {
+  width: min(100% - 2rem, 1280px);
+  margin-inline: auto;
+}
+
+@media (min-width: 640px) {
+  .container-premium {
+    width: min(100% - 3rem, 1280px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-premium {
+    width: min(100% - 4rem, 1280px);
+  }
+}
+
+@media (max-width: 639px) {
+  .btn-primary,
+  .btn-secondary {
+    max-width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .section-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+  }
+
+  .glass-panel {
+    border-radius: 0.85rem;
+  }
+}
+
+/* =========================================
+   PERFORMANCE & ACCESSIBILITY
+========================================= */
+
+@media (hover: none) {
+  .glass-panel-hover:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-glow,
+  .animate-float-coin,
+  .shimmer-effect::after {
+    animation: none;
+  }
+}
