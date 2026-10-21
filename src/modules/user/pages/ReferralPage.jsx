@@ -28,7 +28,7 @@ export default function ReferralPage() {
   }
 
   return (
-    <div className="panel">
+    <div className="panel featured">
       <h3>Referral</h3>
       <p>
         Your code: <strong className="gold-text">{profile.user.referralCode}</strong>

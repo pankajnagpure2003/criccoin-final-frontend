@@ -8,7 +8,7 @@ export default function AuthShell({ children }) {
           Back to website →
         </Link>
         <div className="brand">
-          <span className="brand-mark">October</span>
+          <span className="brand-mark">Criccoin</span>
           <p className="brand-tag">TRADE · INVEST · GROW</p>
         </div>
         {children}

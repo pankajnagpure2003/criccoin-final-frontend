@@ -21,7 +21,7 @@ export default function AdminLayout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand sidebar-brand">
-          <span className="brand-mark">October</span>
+          <span className="brand-mark">Criccoin</span>
           <p className="brand-tag">ADMIN</p>
         </div>
         <nav className="sidebar-nav">
