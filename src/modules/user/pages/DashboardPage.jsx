@@ -42,7 +42,7 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="stats">
-        <article className="stat-card">
+        <article className="stat-card featured">
           <p>Wallet</p>
           <strong>{balanceUsdt === null ? "-" : `${Number(balanceUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
         </article>
