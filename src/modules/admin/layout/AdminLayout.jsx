@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import logoImg from "../../../assets/criccoin-logo-trans.png";
 import { authClient } from "../../../api/authClient.js";
 import { logoutAdmin } from "../api/admin.api.js";
 
@@ -18,10 +19,13 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell admin-dashboard">
       <aside className="sidebar">
         <div className="brand sidebar-brand">
-          <span className="brand-mark">Criccoin</span>
+          <div className="sidebar-brand-heading">
+            <img className="sidebar-logo" src={logoImg} alt="" />
+            <span className="brand-mark">Criccoin</span>
+          </div>
           <p className="brand-tag">ADMIN</p>
         </div>
         <nav className="sidebar-nav">

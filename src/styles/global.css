@@ -134,8 +134,8 @@ a {
 }
 
 .auth-card .brand-logo {
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
   margin: 0 auto 8px;
   object-fit: contain;
   filter: drop-shadow(0 3px 12px rgba(212, 175, 55, 0.28));
@@ -419,14 +419,66 @@ select {
   text-align: left;
 }
 
+.sidebar-brand-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.sidebar-brand-heading > :first-child {
+  position: relative;
+}
+
+.sidebar-brand-heading > :first-child::before {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  content: "";
+  filter: blur(8px);
+}
+
+.sidebar .sidebar-logo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  object-fit: contain;
+  transform: scale(2);
+  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+}
+
 .sidebar .brand-mark {
-  font-size: 28px;
+  color: #ffd76a;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   line-height: 1.1;
 }
 
 .sidebar .brand-tag {
   margin-top: 6px;
   letter-spacing: 0.16em;
+}
+
+@media (min-width: 640px) {
+  .sidebar-brand-heading {
+    min-height: 44px;
+  }
+
+  .sidebar .sidebar-logo {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .sidebar .brand-mark {
+    font-size: 20px;
+  }
 }
 
 .sidebar-nav {
@@ -536,6 +588,22 @@ select {
     inset 0 1px 0 rgba(255, 241, 184, 0.22),
     0 12px 32px rgba(0, 0, 0, 0.25),
     0 0 24px rgba(240, 211, 107, 0.12);
+}
+
+.user-dashboard .stat-card,
+.user-dashboard .panel,
+.admin-dashboard .stat-card,
+.admin-dashboard .panel {
+  border: 2px solid rgba(229, 168, 59, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 241, 184, 0.12),
+    0 0 0 1px rgba(229, 168, 59, 0.18),
+    0 0 18px rgba(212, 175, 55, 0.12);
+}
+
+.user-dashboard .stat-card.featured,
+.admin-dashboard .stat-card.featured {
+  border-color: rgba(255, 215, 106, 0.95);
 }
 
 .stat-card p,
