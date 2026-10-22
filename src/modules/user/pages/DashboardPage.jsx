@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../../../api/authClient.js";
 import { getWallet } from "../api/deposit.api.js";
+import { getInvestments } from "../api/investment.api.js";
 import { getMe, logoutUser } from "../api/userAuth.api.js";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [balanceUsdt, setBalanceUsdt] = useState(null);
+  const [tokenBalance, setTokenBalance] = useState(null);
+  const [lockedUsdt, setLockedUsdt] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,8 +26,17 @@ export default function DashboardPage() {
         logoutUser();
       });
     getWallet()
-      .then((data) => setBalanceUsdt(data.wallet?.availableUsdt ?? data.wallet?.balanceUsdt ?? 0))
-      .catch(() => setBalanceUsdt(null));
+      .then((data) => {
+        setBalanceUsdt(data.wallet?.availableUsdt ?? data.wallet?.balanceUsdt ?? 0);
+        setTokenBalance(data.wallet?.tokenBalance ?? 0);
+      })
+      .catch(() => {
+        setBalanceUsdt(null);
+        setTokenBalance(null);
+      });
+    getInvestments()
+      .then((data) => setLockedUsdt(data.lockedUsdt ?? 0))
+      .catch(() => setLockedUsdt(null));
   }, [navigate]);
 
   if (error) {
@@ -45,6 +57,14 @@ export default function DashboardPage() {
         <article className="stat-card featured">
           <p>Wallet</p>
           <strong>{balanceUsdt === null ? "-" : `${Number(balanceUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
+        </article>
+        <article className="stat-card">
+          <p>Locked</p>
+          <strong>{lockedUsdt === null ? "-" : `${Number(lockedUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
+        </article>
+        <article className="stat-card">
+          <p>Tokens</p>
+          <strong>{tokenBalance === null ? "-" : Number(tokenBalance).toLocaleString("en-IN", { maximumFractionDigits: 6 })}</strong>
         </article>
         <article className="stat-card">
           <p>Referral code</p>

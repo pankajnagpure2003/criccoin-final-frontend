@@ -29,6 +29,7 @@ export default function AdminLayout() {
           <NavLink to="/admin/deposits">Deposits</NavLink>
           <NavLink to="/admin/withdrawals">Withdrawals</NavLink>
           <NavLink to="/admin/payment-setup">Payment setup</NavLink>
+          <NavLink to="/admin/investment-setup">Investment setup</NavLink>
         </nav>
         <div className="sidebar-foot">
           <button type="button" className="sidebar-logout" onClick={logout}>

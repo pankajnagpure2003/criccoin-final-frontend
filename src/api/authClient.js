@@ -100,6 +100,10 @@ export class AuthClient {
     return this.request(path, { ...options, method: "PUT", body });
   }
 
+  delete(path, options = {}) {
+    return this.request(path, { ...options, method: "DELETE" });
+  }
+
   async postForm(path, formData, { auth = false, role = "user" } = {}) {
     const headers = { Accept: "application/json" };
     if (auth) {

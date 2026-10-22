@@ -8,6 +8,7 @@ import ResetPasswordPage from "./modules/user/pages/ResetPasswordPage.jsx";
 import UserLayout from "./modules/user/layout/UserLayout.jsx";
 import DashboardPage from "./modules/user/pages/DashboardPage.jsx";
 import DepositPage from "./modules/user/pages/DepositPage.jsx";
+import InvestPage from "./modules/user/pages/InvestPage.jsx";
 import WithdrawPage from "./modules/user/pages/WithdrawPage.jsx";
 import ReferralPage from "./modules/user/pages/ReferralPage.jsx";
 import ProfilePage from "./modules/user/pages/ProfilePage.jsx";
@@ -17,6 +18,7 @@ import AdminUsersPage from "./modules/admin/pages/AdminUsersPage.jsx";
 import AdminDepositsPage from "./modules/admin/pages/AdminDepositsPage.jsx";
 import AdminWithdrawalsPage from "./modules/admin/pages/AdminWithdrawalsPage.jsx";
 import AdminPaymentSetupPage from "./modules/admin/pages/AdminPaymentSetupPage.jsx";
+import AdminInvestmentSetupPage from "./modules/admin/pages/AdminInvestmentSetupPage.jsx";
 
 export default function App() {
   return (
@@ -30,6 +32,7 @@ export default function App() {
       <Route path="/dashboard" element={<UserLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="deposit" element={<DepositPage />} />
+        <Route path="invest" element={<InvestPage />} />
         <Route path="withdraw" element={<WithdrawPage />} />
         <Route path="referral" element={<ReferralPage />} />
         <Route path="profile" element={<ProfilePage />} />
@@ -41,6 +44,7 @@ export default function App() {
         <Route path="deposits" element={<AdminDepositsPage />} />
         <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="payment-setup" element={<AdminPaymentSetupPage />} />
+        <Route path="investment-setup" element={<AdminInvestmentSetupPage />} />
       </Route>
     </Routes>
   );

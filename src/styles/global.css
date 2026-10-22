@@ -584,6 +584,44 @@ select {
   overflow-x: auto;
 }
 
+.lock-cards {
+  display: none;
+}
+
+.lock-card {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(240, 211, 107, 0.2);
+  border-radius: 14px;
+  background: #101318;
+}
+
+.lock-card-head,
+.lock-card-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.lock-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.lock-card-grid span,
+.lock-card-head .muted {
+  display: block;
+  margin-bottom: 4px;
+  color: #9aa3b2;
+  font-size: 12px;
+}
+
+.lock-card .gold-btn {
+  width: 100%;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -615,6 +653,27 @@ td {
 .field span {
   color: #9aa3b2;
   font-size: 12px;
+}
+
+.level-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c6c6c6;
 }
 
 .method-grid {
@@ -712,6 +771,16 @@ input.mini-input {
   background: linear-gradient(90deg, rgba(180, 60, 60, 0.22), #1c212b);
 }
 
+.badge.locked {
+  color: #e4c066;
+  background: linear-gradient(90deg, rgba(240, 211, 107, 0.2), #1c212b);
+}
+
+.badge.claimed {
+  color: #c9e4a8;
+  background: linear-gradient(90deg, rgba(80, 180, 90, 0.22), #1c212b);
+}
+
 .qr-shot {
   display: block;
   width: 180px;
@@ -789,5 +858,14 @@ input.mini-input {
   .stats,
   .method-grid {
     grid-template-columns: 1fr;
+  }
+
+  .lock-table {
+    display: none;
+  }
+
+  .lock-cards {
+    display: grid;
+    gap: 12px;
   }
 }

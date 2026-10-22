@@ -1,0 +1,249 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authClient } from "../../../api/authClient.js";
+import { claimInvestment, createInvestment, getInvestments } from "../api/investment.api.js";
+
+function formatUsdt(value) {
+  return Number(value || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+}
+
+function formatWhen(value) {
+  if (!value) {
+    return "-";
+  }
+  return new Date(value).toLocaleString();
+}
+
+function canClaim(investment) {
+  return investment.status === "locked" && new Date(investment.unlocksAt).getTime() <= Date.now();
+}
+
+function LockAction({ investment, claimingId, onClaim }) {
+  if (investment.status !== "locked") {
+    return <span className="muted">Claimed</span>;
+  }
+
+  const ready = canClaim(investment);
+  return (
+    <button
+      className="gold-btn compact"
+      type="button"
+      disabled={!ready || claimingId === investment.id}
+      onClick={() => onClaim(investment.id)}
+    >
+      {claimingId === investment.id ? "Claiming..." : ready ? "Claim" : "Locked"}
+    </button>
+  );
+}
+
+export default function InvestPage() {
+  const navigate = useNavigate();
+  const [investments, setInvestments] = useState([]);
+  const [wallet, setWallet] = useState(null);
+  const [tokenRate, setTokenRate] = useState(null);
+  const [plans, setPlans] = useState([]);
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [lockedUsdt, setLockedUsdt] = useState(0);
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [claimingId, setClaimingId] = useState("");
+
+  function applyPayload(data) {
+    setInvestments(data.investments || []);
+    setWallet(data.wallet || null);
+    setTokenRate(data.tokenRate || null);
+    setPlans(data.plans || []);
+    setSelectedPlanId((current) => {
+      const nextPlans = data.plans || [];
+      return nextPlans.some((plan) => plan.id === current) ? current : nextPlans[0]?.id || "";
+    });
+    setLockedUsdt(data.lockedUsdt || 0);
+  }
+
+  useEffect(() => {
+    if (!authClient.isAuthenticated("user")) {
+      navigate("/login");
+      return;
+    }
+
+    getInvestments()
+      .then(applyPayload)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [navigate]);
+
+  async function onSubmit(event) {
+    event.preventDefault();
+    setError("");
+    setInfo("");
+    setSubmitting(true);
+    try {
+      const data = await createInvestment({ planId: selectedPlanId });
+      applyPayload(data);
+      setInfo(data.investment?.referralPlan?.name ? `USDT locked in ${data.investment.referralPlan.name} for 1 year.` : "USDT locked for 1 year.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onClaim(id) {
+    setError("");
+    setInfo("");
+    setClaimingId(id);
+    try {
+      const data = await claimInvestment(id);
+      applyPayload(data);
+      const claimed = (data.investments || []).find((investment) => investment.id === id);
+      setInfo(claimed?.tokensCredited ? `${formatUsdt(claimed.tokensCredited)} tokens added.` : "Tokens claimed.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setClaimingId("");
+    }
+  }
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  const rateText = tokenRate?.configured ? `${formatUsdt(tokenRate.tokensPerUsdt)} tokens` : "Not set yet";
+  const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) || null;
+
+  return (
+    <div className="stack">
+      {error ? <p className="error">{error}</p> : null}
+      {info ? <p className="info">{info}</p> : null}
+      <div className="stats">
+        <article className="stat-card featured">
+          <p>Available</p>
+          <strong>{wallet ? `${formatUsdt(wallet.availableUsdt)} USDT` : "-"}</strong>
+        </article>
+        <article className="stat-card">
+          <p>Locked</p>
+          <strong>{formatUsdt(lockedUsdt)} USDT</strong>
+        </article>
+        <article className="stat-card">
+          <p>Token balance</p>
+          <strong>{wallet ? formatUsdt(wallet.tokenBalance) : "-"}</strong>
+        </article>
+        <article className="stat-card">
+          <p>Rate today</p>
+          <strong>{rateText}</strong>
+        </article>
+      </div>
+
+      <div className="panel">
+        <h3>Lock USDT</h3>
+        <p className="muted">
+          Pick a plan. The lock uses that plan's amount exactly, for 1 year. You can lock in more than one plan. On claim, tokens = locked USDT × the token rate that day. Referral does not reduce this amount.
+        </p>
+        {plans.length === 0 ? <p className="error">No plan is open today. An active plan must include today's date.</p> : null}
+        {plans.length > 0 ? (
+          <div className="method-grid">
+            {plans.map((plan) => (
+              <button
+                key={plan.id}
+                type="button"
+                className={selectedPlanId === plan.id ? "method-card active" : "method-card"}
+                onClick={() => setSelectedPlanId(plan.id)}
+              >
+                {plan.name}
+                <small>
+                  {formatUsdt(plan.amountUsdt)} USDT · {plan.startDate} to {plan.endDate} · {plan.totalPercent}% referral
+                </small>
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <form className="auth-form deposit-form" onSubmit={onSubmit}>
+          {selectedPlan ? (
+            <p>
+              You will lock <strong>{formatUsdt(selectedPlan.amountUsdt)} USDT</strong> in {selectedPlan.name}.
+            </p>
+          ) : null}
+          <button className="gold-btn" type="submit" disabled={submitting || !selectedPlan}>
+            {submitting ? "Locking..." : selectedPlan ? `Lock ${formatUsdt(selectedPlan.amountUsdt)} USDT` : "Lock for 1 year"}
+          </button>
+        </form>
+      </div>
+
+      <div className="panel">
+        <h3>Locks</h3>
+        {investments.length === 0 ? (
+          <p className="muted">No locks yet.</p>
+        ) : (
+          <>
+            <div className="lock-table table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Locked</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                    <th>Unlocks</th>
+                    <th>Status</th>
+                    <th>Tokens</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {investments.map((investment) => (
+                    <tr key={investment.id}>
+                      <td>{formatWhen(investment.lockedAt)}</td>
+                      <td>{investment.referralPlan?.name || "-"}</td>
+                      <td>{formatUsdt(investment.amountUsdt)} USDT</td>
+                      <td>{formatWhen(investment.unlocksAt)}</td>
+                      <td>
+                        <span className={`badge ${investment.status}`}>{investment.status}</span>
+                      </td>
+                      <td>{investment.tokensCredited ? formatUsdt(investment.tokensCredited) : "-"}</td>
+                      <td>
+                        <LockAction investment={investment} claimingId={claimingId} onClaim={onClaim} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="lock-cards">
+              {investments.map((investment) => (
+                <article className="lock-card" key={investment.id}>
+                  <div className="lock-card-head">
+                    <div>
+                      <p className="muted">Plan</p>
+                      <strong>{investment.referralPlan?.name || "-"}</strong>
+                    </div>
+                    <span className={`badge ${investment.status}`}>{investment.status}</span>
+                  </div>
+                  <div className="lock-card-grid">
+                    <div>
+                      <span>Amount</span>
+                      <strong>{formatUsdt(investment.amountUsdt)} USDT</strong>
+                    </div>
+                    <div>
+                      <span>Tokens</span>
+                      <strong>{investment.tokensCredited ? formatUsdt(investment.tokensCredited) : "-"}</strong>
+                    </div>
+                    <div>
+                      <span>Locked</span>
+                      <strong>{formatWhen(investment.lockedAt)}</strong>
+                    </div>
+                    <div>
+                      <span>Unlocks</span>
+                      <strong>{formatWhen(investment.unlocksAt)}</strong>
+                    </div>
+                  </div>
+                  <LockAction investment={investment} claimingId={claimingId} onClaim={onClaim} />
+                </article>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
