@@ -15,7 +15,7 @@ export default function About() {
       {/* Subtle background ambient halo */}
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Tag */}
         <motion.div {...fadeUp(0, 15)} className="mb-3">
@@ -125,7 +125,7 @@ export default function About() {
 
               {/* Mission Content overlay */}
               
-<div className="relative z-10 p-5 sm:p-7 flex flex-col justify-end min-h-[440px] sm:min-h-[500px]">
+<div className="relative z-10 p-5 sm:p-7 flex flex-col justify-end min-h-[480px] sm:min-h-[540px]">
 
   <div>
     {/* Compact Top Badge */}

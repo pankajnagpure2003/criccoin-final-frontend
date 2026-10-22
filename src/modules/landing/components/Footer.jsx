@@ -45,7 +45,7 @@ export default function Footer({ onOpenLegal, onScrollTo }) {
       {/* Ambient background gold glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-[#D4AF37]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b-2 border-[#D4AF37]/70">

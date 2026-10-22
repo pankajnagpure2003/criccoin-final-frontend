@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import logoImg from "../../../assets/criccoin-logo-trans.png";
 import { authClient } from "../../../api/authClient.js";
 import { logoutUser } from "../api/userAuth.api.js";
 
@@ -19,10 +20,13 @@ export default function UserLayout() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell user-dashboard">
       <aside className="sidebar">
         <div className="brand sidebar-brand">
-          <span className="brand-mark">Criccoin</span>
+          <div className="sidebar-brand-heading">
+            <img className="sidebar-logo" src={logoImg} alt="" />
+            <span className="brand-mark">Criccoin</span>
+          </div>
           <p className="brand-tag">USER PANEL</p>
         </div>
         <nav className="sidebar-nav">

@@ -79,7 +79,7 @@ export default function TokenPackages({ onExplore }) {
       {/* Ambient background gold glow */}
       <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-[#D4AF37]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <motion.div {...fadeUp(0, 15)} className="mb-3">

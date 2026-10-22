@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <AuthShell>
       <h1>Welcome back</h1>
-      <p className="lead">Sign in to continue to your dashboard.</p>
+      <p className="lead">Login in to continue to your dashboard.</p>
       {error ? <p className="error">{error}</p> : null}
       <form className="auth-form" onSubmit={onSubmit}>
         <input name="email" type="email" placeholder="Email" value={form.email} onChange={update} required />
@@ -44,7 +44,7 @@ export default function LoginPage() {
           Forgot password?
         </Link>
         <button className="gold-btn" type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? "Logging in..." : "Log In"}
         </button>
       </form>
       <p className="auth-footer">

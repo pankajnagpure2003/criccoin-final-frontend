@@ -62,7 +62,7 @@ export default function Hero({ onExplore }) {
           loop
           playsInline
           aria-hidden="true"
-          className="hidden md:block absolute inset-0 w-full h-full object-cover object-center md:object-[60%_55%]"
+          className="hidden md:block absolute inset-0 w-full h-full object-cover object-center md:object-[60%_62%]"
         />
         {/* Dark Obsidian & Gold Gradients */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#050606] via-[#050606]/92 to-[#050606]/75 md:from-[#050606]/70 md:via-[#050606]/25 md:to-[#050606]/15" />
@@ -134,7 +134,7 @@ export default function Hero({ onExplore }) {
         }}
       />
 
-      <div className="relative z-10 max-w-10xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow flex flex-col justify-center -translate-y-3 md:translate-y-2">
+      <div className="relative z-10 max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow flex flex-col justify-center -translate-y-4 md:-translate-y-1">
         
         {/* Top Grid: Left Hero Content (7 cols) + Right Player & Coin Artwork (5 cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center mb-10">
@@ -151,7 +151,7 @@ export default function Hero({ onExplore }) {
             </motion.div>
 
            
-            <motion.h1 {...fadeUp(0.15, 22)} className="font-heading text-4xl sm:text-5xl lg:text-[3.8rem] font-extrabold text-white tracking-tight leading-[1.08] mb-5">
+            <motion.h1 {...fadeUp(0.15, 22)} className="font-heading -mt-2 text-4xl sm:text-5xl lg:text-[3.8rem] font-extrabold text-white tracking-tight leading-[1.08] mb-5">
               Where Cricket Meets{' '}
               <span className="hero-heading-mobile-motion block mt-1 gold-gradient-text drop-shadow-[0_4px_24px_rgba(212,175,55,0.35)]">
                 Digital Innovation.
