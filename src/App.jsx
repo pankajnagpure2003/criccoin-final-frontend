@@ -19,6 +19,7 @@ import AdminDepositsPage from "./modules/admin/pages/AdminDepositsPage.jsx";
 import AdminWithdrawalsPage from "./modules/admin/pages/AdminWithdrawalsPage.jsx";
 import AdminPaymentSetupPage from "./modules/admin/pages/AdminPaymentSetupPage.jsx";
 import AdminInvestmentSetupPage from "./modules/admin/pages/AdminInvestmentSetupPage.jsx";
+import AdminClaimRequestsPage from "./modules/admin/pages/AdminClaimRequestsPage.jsx";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="payment-setup" element={<AdminPaymentSetupPage />} />
         <Route path="investment-setup" element={<AdminInvestmentSetupPage />} />
+        <Route path="claim-requests" element={<AdminClaimRequestsPage />} />
       </Route>
     </Routes>
   );

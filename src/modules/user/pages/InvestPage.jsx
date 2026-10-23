@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Coins, PackageOpen, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
+import { Coins, PackageOpen, ShoppingBag, TrendingUp, WalletCards, X } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
+import PaymentMethodIcon from "../components/PaymentMethodIcon.jsx";
 import { claimInvestment, createInvestment, getInvestments } from "../api/investment.api.js";
 
 function formatUsdt(value) {
@@ -15,24 +16,36 @@ function formatWhen(value) {
   return new Date(value).toLocaleString();
 }
 
-function canClaim(investment) {
-  return investment.status === "locked" && new Date(investment.unlocksAt).getTime() <= Date.now();
+function canRequestClaim(investment) {
+  return investment.status === "locked" && investment.claimStatus !== "pending" && new Date(investment.unlocksAt).getTime() <= Date.now();
 }
 
-function LockAction({ investment, claimingId, onClaim }) {
-  if (investment.status !== "locked") {
+function claimBadgeClass(investment) {
+  if (investment.status === "claimed") return "claimed";
+  if (investment.claimStatus === "pending") return "pending";
+  if (investment.claimStatus === "rejected") return "rejected";
+  return "locked";
+}
+
+function claimBadgeText(investment) {
+  if (investment.status === "claimed") return "Claimed";
+  if (investment.claimStatus === "pending") return "Requested";
+  if (investment.claimStatus === "rejected") return "Rejected";
+  return "Purchased";
+}
+
+function LockAction({ investment, onClaim }) {
+  if (investment.status === "claimed") {
     return <span className="muted">Claimed</span>;
   }
+  if (investment.claimStatus === "pending") {
+    return <span className="muted">Requested</span>;
+  }
 
-  const ready = canClaim(investment);
+  const ready = canRequestClaim(investment);
   return (
-    <button
-      className="gold-btn compact"
-      type="button"
-      disabled={!ready || claimingId === investment.id}
-      onClick={() => onClaim(investment.id)}
-    >
-      {claimingId === investment.id ? "Claiming..." : ready ? "Claim" : "Purchased"}
+    <button className="gold-btn compact" type="button" disabled={!ready} onClick={() => onClaim(investment.id)}>
+      {ready ? "Claim" : "Purchased"}
     </button>
   );
 }
@@ -43,19 +56,27 @@ export default function InvestPage() {
   const [wallet, setWallet] = useState(null);
   const [tokenRate, setTokenRate] = useState(null);
   const [plans, setPlans] = useState([]);
+  const [payoutMethods, setPayoutMethods] = useState([]);
   const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [claimTargetId, setClaimTargetId] = useState("");
+  const [methodId, setMethodId] = useState("");
+  const [payout, setPayout] = useState({});
+  const [claimNote, setClaimNote] = useState("");
+  const [claimError, setClaimError] = useState("");
   const [lockedUsdt, setLockedUsdt] = useState(0);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [claimingId, setClaimingId] = useState("");
+  const [claiming, setClaiming] = useState(false);
 
   function applyPayload(data) {
     setInvestments(data.investments || []);
     setWallet(data.wallet || null);
     setTokenRate(data.tokenRate || null);
     setPlans(data.plans || []);
+    setPayoutMethods(data.payoutMethods || []);
+    setMethodId((current) => current || data.payoutMethods?.[0]?.id || "");
     setSelectedPlanId((current) => {
       const nextPlans = data.plans || [];
       const currentPlan = nextPlans.find((plan) => plan.id === current);
@@ -99,19 +120,51 @@ export default function InvestPage() {
     }
   }
 
-  async function onClaim(id) {
-    setError("");
+  function closeClaim() {
+    if (claiming) {
+      return;
+    }
+    setClaimTargetId("");
+    setClaimError("");
+  }
+
+  function openClaim(id) {
+    setClaimTargetId(id);
+    setPayout({});
+    setClaimNote("");
+    setClaimError("");
     setInfo("");
-    setClaimingId(id);
+  }
+
+  useEffect(() => {
+    if (!claimTargetId) {
+      return undefined;
+    }
+    function onKey(event) {
+      if (event.key === "Escape") {
+        closeClaim();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [claimTargetId, claiming]);
+
+  async function onClaim(event) {
+    event.preventDefault();
+    setClaimError("");
+    setInfo("");
+    setClaiming(true);
     try {
-      const data = await claimInvestment(id);
+      const data = await claimInvestment(claimTargetId, { method: methodId, payout, note: claimNote });
       applyPayload(data);
-      const claimed = (data.investments || []).find((investment) => investment.id === id);
-      setInfo(claimed?.tokensCredited ? `${formatUsdt(claimed.tokensCredited)} tokens added.` : "Tokens claimed.");
+      setClaimTargetId("");
+      setPayout({});
+      setClaimNote("");
+      setInfo("Claim request sent. Tokens are added after admin pays and submits the transaction hash.");
     } catch (err) {
-      setError(err.message);
+      setClaimError(err.message);
     } finally {
-      setClaimingId("");
+      setClaiming(false);
     }
   }
 
@@ -121,6 +174,10 @@ export default function InvestPage() {
 
   const rateText = tokenRate?.configured ? `${formatUsdt(tokenRate.tokensPerUsdt)} tokens` : "Not set yet";
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) || null;
+  const claimTarget = investments.find((investment) => investment.id === claimTargetId) || null;
+  const selectedMethod = payoutMethods.find((method) => method.id === methodId) || payoutMethods[0];
+  const claimTokens =
+    claimTarget && tokenRate?.configured ? formatUsdt(Number(claimTarget.amountUsdt) * Number(tokenRate.tokensPerUsdt)) : "";
 
   return (
     <div className="stack">
@@ -160,7 +217,7 @@ export default function InvestPage() {
       <div className="panel">
         <h3>Purchase</h3>
         <p className="muted">
-          Pick a plan. The purchase uses that plan's amount exactly. Claim opens after the plan duration, counted from the purchase. You can purchase more than one plan. On claim, tokens = purchased USDT × the token rate that day. Referral does not reduce this amount.
+          Pick a plan. The purchase uses that plan's amount exactly. When the duration ends, Claim sends a request to admin. Admin pays manually, submits the transaction hash, and the tokens are credited at the rate active that day. Referral does not reduce this amount.
         </p>
         {plans.length === 0 ? <p className="error">No active plan yet.</p> : null}
         {plans.length > 0 ? (
@@ -200,6 +257,75 @@ export default function InvestPage() {
         </form>
       </div>
 
+      {claimTarget ? (
+        <div className="claim-modal" role="presentation" onClick={closeClaim}>
+          <div
+            className="claim-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="claim-request-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="claim-dialog-close" type="button" aria-label="Close" onClick={closeClaim} disabled={claiming}>
+              <X size={18} />
+            </button>
+            <h3 id="claim-request-title">Claim request</h3>
+            <p className="muted">
+              {claimTarget.referralPlan?.name || "Plan"} · {formatUsdt(claimTarget.amountUsdt)} USDT
+              {claimTokens ? ` · about ${claimTokens} tokens at today's rate` : ""}. Add the payment details admin should use. The final token amount uses the rate when admin approves.
+            </p>
+            {claimTarget.claimStatus === "rejected" && claimTarget.claimRejectReason ? (
+              <p className="error">{claimTarget.claimRejectReason}</p>
+            ) : null}
+            <div className="method-grid">
+              {payoutMethods.map((method) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  className={selectedMethod?.id === method.id ? "method-card active" : "method-card"}
+                  onClick={() => {
+                    setMethodId(method.id);
+                    setPayout({});
+                  }}
+                >
+                  <PaymentMethodIcon methodId={method.id} />
+                  <span className="method-card-copy">
+                    {method.label}
+                    <small>Payout details</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <form className="auth-form deposit-form" onSubmit={onClaim}>
+              {(selectedMethod?.fields || []).map((field) => (
+                <label className="field" key={field.key}>
+                  <span>{field.label}</span>
+                  <input
+                    value={payout[field.key] || ""}
+                    placeholder={field.placeholder || ""}
+                    required={field.required}
+                    onChange={(event) => setPayout((current) => ({ ...current, [field.key]: event.target.value }))}
+                  />
+                </label>
+              ))}
+              <label className="field">
+                <span>Note</span>
+                <input value={claimNote} onChange={(event) => setClaimNote(event.target.value)} placeholder="Optional" />
+              </label>
+              {claimError ? <p className="error">{claimError}</p> : null}
+              <div className="action-row">
+                <button className="gold-btn compact" type="submit" disabled={claiming || !selectedMethod}>
+                  {claiming ? "Sending..." : "Send claim request"}
+                </button>
+                <button className="ghost-btn" type="button" onClick={closeClaim}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       <div className="panel">
         <h3>Purchases</h3>
         {investments.length === 0 ? (
@@ -217,6 +343,7 @@ export default function InvestPage() {
                     <th>Claim date</th>
                     <th>Status</th>
                     <th>Tokens</th>
+                    <th>Transaction hash</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -229,11 +356,15 @@ export default function InvestPage() {
                       <td>{investment.referralPlan?.durationDays ? `${investment.referralPlan.durationDays} days` : "-"}</td>
                       <td>{formatWhen(investment.unlocksAt)}</td>
                       <td>
-                        <span className={`badge ${investment.status}`}>{investment.status === "locked" ? "Purchased" : "Claimed"}</span>
+                        <span className={`badge ${claimBadgeClass(investment)}`}>{claimBadgeText(investment)}</span>
+                        {investment.claimRejectReason && investment.claimStatus === "rejected" ? (
+                          <p className="muted">{investment.claimRejectReason}</p>
+                        ) : null}
                       </td>
                       <td>{investment.tokensCredited ? formatUsdt(investment.tokensCredited) : "-"}</td>
+                      <td>{investment.claimTxHash || "-"}</td>
                       <td>
-                        <LockAction investment={investment} claimingId={claimingId} onClaim={onClaim} />
+                        <LockAction investment={investment} onClaim={openClaim} />
                       </td>
                     </tr>
                   ))}
@@ -248,7 +379,7 @@ export default function InvestPage() {
                       <p className="muted">Plan</p>
                       <strong>{investment.referralPlan?.name || "-"}</strong>
                     </div>
-                    <span className={`badge ${investment.status}`}>{investment.status === "locked" ? "Purchased" : "Claimed"}</span>
+                    <span className={`badge ${claimBadgeClass(investment)}`}>{claimBadgeText(investment)}</span>
                   </div>
                   <div className="lock-card-grid">
                     <div>
@@ -272,7 +403,13 @@ export default function InvestPage() {
                       <strong>{formatWhen(investment.unlocksAt)}</strong>
                     </div>
                   </div>
-                  <LockAction investment={investment} claimingId={claimingId} onClaim={onClaim} />
+                  {investment.claimTxHash ? (
+                    <p className="muted">Transaction hash: {investment.claimTxHash}</p>
+                  ) : null}
+                  {investment.claimRejectReason && investment.claimStatus === "rejected" ? (
+                    <p className="muted">{investment.claimRejectReason}</p>
+                  ) : null}
+                  <LockAction investment={investment} onClaim={openClaim} />
                 </article>
               ))}
             </div>
