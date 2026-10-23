@@ -6,6 +6,7 @@ import {
   CircleUserRound,
   LayoutDashboard,
   LogOut,
+  ShoppingBag,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -46,6 +47,10 @@ export default function UserLayout() {
           <NavLink to="/dashboard/deposit">
             <ArrowDownToLine size={17} aria-hidden="true" />
             <span>Deposit</span>
+          </NavLink>
+          <NavLink to="/dashboard/invest">
+            <ShoppingBag size={17} aria-hidden="true" />
+            <span>Purchase</span>
           </NavLink>
           <NavLink to="/dashboard/withdraw">
             <ArrowUpFromLine size={17} aria-hidden="true" />
