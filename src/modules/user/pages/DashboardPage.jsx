@@ -59,7 +59,7 @@ export default function DashboardPage() {
           <strong>{balanceUsdt === null ? "-" : `${Number(balanceUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
         </article>
         <article className="stat-card">
-          <p>Locked</p>
+          <p>Purchased</p>
           <strong>{lockedUsdt === null ? "-" : `${Number(lockedUsdt).toLocaleString("en-IN", { maximumFractionDigits: 6 })} USDT`}</strong>
         </article>
         <article className="stat-card">

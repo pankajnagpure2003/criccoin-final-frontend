@@ -12,7 +12,7 @@ import {
 import { logoutAdmin } from "../api/admin.api.js";
 
 const MAX_LEVELS = 20;
-const EMPTY_FORM = { name: "", startDate: "", endDate: "", amountUsdt: "", totalPercent: "", active: true };
+const EMPTY_FORM = { name: "", durationDays: "", amountUsdt: "", totalPercent: "", active: true };
 
 function percentCents(value) {
   if (value === "" || value === null || value === undefined) {
@@ -72,13 +72,14 @@ export default function AdminInvestmentSetupPage() {
           levelCents.every((cents) => cents !== null && cents > 0);
     const amount = Number(form.amountUsdt);
     const amountOk = Number.isFinite(amount) && amount > 0;
-    const datesOk = Boolean(form.startDate && form.endDate && form.endDate >= form.startDate);
+    const duration = Number(form.durationDays);
+    const durationOk = Number.isInteger(duration) && duration >= 1 && duration <= 10000;
     return {
       totalCents,
       sumCents,
-      exact: totalOk && levelsOk && datesOk && amountOk && sumCents === totalCents && form.name.trim().length > 0,
+      exact: totalOk && levelsOk && durationOk && amountOk && sumCents === totalCents && form.name.trim().length > 0,
     };
-  }, [form.amountUsdt, form.endDate, form.name, form.startDate, form.totalPercent, levels]);
+  }, [form.amountUsdt, form.durationDays, form.name, form.totalPercent, levels]);
 
   function addLevel() {
     setLevels((current) => (current.length >= MAX_LEVELS ? current : [...current, { percent: "" }]));
@@ -98,18 +99,11 @@ export default function AdminInvestmentSetupPage() {
     setLevels([]);
   }
 
-  function startNew() {
-    resetForm();
-    setError("");
-    setInfo("");
-  }
-
   function startEdit(plan) {
     setEditingId(plan.id);
     setForm({
       name: plan.name,
-      startDate: plan.startDate || "",
-      endDate: plan.endDate || "",
+      durationDays: plan.durationDays ? String(plan.durationDays) : "",
       amountUsdt: plan.amountUsdt ? String(plan.amountUsdt) : "",
       totalPercent: String(plan.totalPercent),
       active: Boolean(plan.active),
@@ -140,24 +134,24 @@ export default function AdminInvestmentSetupPage() {
     setError("");
     setInfo("");
     if (!planCheck.exact) {
-      setError("Add a name, amount, valid dates, and level percents that add up to the total.");
+      setError("Add a name, amount, duration in days, and level percents that add up to the total.");
       return;
     }
     const payload = {
       name: form.name.trim(),
-      startDate: form.startDate,
-      endDate: form.endDate,
+      durationDays: Number(form.durationDays),
       amountUsdt: form.amountUsdt,
       totalPercent: form.totalPercent,
       active: form.active,
       levels: levels.map((level) => ({ percent: level.percent })),
     };
     setSavingPlan(true);
+    const updating = Boolean(editingId);
     try {
-      const data = editingId ? await updateReferralPlan(editingId, payload) : await createReferralPlan(payload);
+      const data = updating ? await updateReferralPlan(editingId, payload) : await createReferralPlan(payload);
       setPlans(data.plans || []);
       resetForm();
-      setInfo(editingId ? "Plan updated. Existing locks keep their old copy." : "Plan saved.");
+      setInfo(updating ? "Plan updated. Existing purchases keep their old copy." : "Plan saved.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -178,7 +172,7 @@ export default function AdminInvestmentSetupPage() {
   }
 
   async function onDelete(plan) {
-    if (!window.confirm(`Delete ${plan.name}? Locks already using it stay as they are.`)) {
+    if (!window.confirm(`Delete ${plan.name}? Purchases already using it stay as they are.`)) {
       return;
     }
     setError("");
@@ -187,7 +181,7 @@ export default function AdminInvestmentSetupPage() {
       const data = await deleteReferralPlan(plan.id);
       setPlans(data.plans || []);
       if (editingId === plan.id) {
-        startNew();
+        resetForm();
       }
       setInfo("Plan deleted.");
     } catch (err) {
@@ -214,7 +208,7 @@ export default function AdminInvestmentSetupPage() {
 
           <form className="panel stack" onSubmit={onSaveRate}>
             <h3>Token rate</h3>
-            <p className="muted">Claim converts locked USDT at the rate active that day. Example: 100 USDT at 1 USDT = 2 tokens pays 200 tokens.</p>
+            <p className="muted">Claim converts purchased USDT at the rate active that day. Example: 100 USDT at 1 USDT = 2 tokens pays 200 tokens.</p>
             <label className="field">
               <span>Tokens for 1 USDT</span>
               <input
@@ -233,7 +227,7 @@ export default function AdminInvestmentSetupPage() {
           <div className="panel stack">
             <h3>Referral plans</h3>
             <p className="muted">
-              Several plans can stay active together. A user pays each plan's amount exactly, and only while that plan is active and today is between its start and end date. Updating one plan does not change another plan, and locks already made keep their own copy.
+              Several plans can stay active together. A user pays each plan's amount exactly. Claim opens after that plan's duration, counted from the purchase. Updating one plan does not change another plan, and purchases already made keep their own copy.
             </p>
             {plans.length === 0 ? (
               <p className="muted">No plans yet.</p>
@@ -244,7 +238,7 @@ export default function AdminInvestmentSetupPage() {
                     <tr>
                       <th>Name</th>
                       <th>Amount</th>
-                      <th>Dates</th>
+                      <th>Duration</th>
                       <th>Total</th>
                       <th>Levels</th>
                       <th>Status</th>
@@ -256,12 +250,11 @@ export default function AdminInvestmentSetupPage() {
                       <tr key={plan.id}>
                         <td>{plan.name}</td>
                         <td>{plan.amountUsdt > 0 ? `${plan.amountUsdt} USDT` : "-"}</td>
-                        <td>{plan.startDate && plan.endDate ? `${plan.startDate} to ${plan.endDate}` : "-"}</td>
+                        <td>{plan.durationDays > 0 ? `${plan.durationDays} days` : "-"}</td>
                         <td>{plan.totalPercent}%</td>
                         <td>{plan.levels.map((level) => `L${level.level} ${level.percent}%`).join(", ") || "-"}</td>
                         <td>
                           {plan.active ? <span className="badge approved">Active</span> : <span className="badge">Inactive</span>}
-                          {plan.open ? <p className="muted">Open today</p> : null}
                         </td>
                         <td>
                           <div className="action-row">
@@ -296,20 +289,12 @@ export default function AdminInvestmentSetupPage() {
               />
             </label>
             <label className="field">
-              <span>Start date</span>
+              <span>Duration (days)</span>
               <input
-                type="date"
-                value={form.startDate}
-                onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))}
-                required
-              />
-            </label>
-            <label className="field">
-              <span>End date</span>
-              <input
-                type="date"
-                value={form.endDate}
-                onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))}
+                inputMode="numeric"
+                value={form.durationDays}
+                onChange={(event) => setForm((current) => ({ ...current, durationDays: event.target.value }))}
+                placeholder="365"
                 required
               />
             </label>
@@ -367,11 +352,6 @@ export default function AdminInvestmentSetupPage() {
               <button className="gold-btn compact" type="button" onClick={addLevel} disabled={levels.length >= MAX_LEVELS}>
                 Add level
               </button>
-              {editingId ? (
-                <button className="ghost-btn" type="button" onClick={startNew}>
-                  New plan
-                </button>
-              ) : null}
               <button className="gold-btn compact" type="submit" disabled={savingPlan || !planCheck.exact}>
                 {savingPlan ? "Saving..." : editingId ? "Update plan" : "Save plan"}
               </button>

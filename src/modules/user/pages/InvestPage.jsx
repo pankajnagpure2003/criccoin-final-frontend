@@ -31,7 +31,7 @@ function LockAction({ investment, claimingId, onClaim }) {
       disabled={!ready || claimingId === investment.id}
       onClick={() => onClaim(investment.id)}
     >
-      {claimingId === investment.id ? "Claiming..." : ready ? "Claim" : "Locked"}
+      {claimingId === investment.id ? "Claiming..." : ready ? "Claim" : "Purchased"}
     </button>
   );
 }
@@ -57,7 +57,11 @@ export default function InvestPage() {
     setPlans(data.plans || []);
     setSelectedPlanId((current) => {
       const nextPlans = data.plans || [];
-      return nextPlans.some((plan) => plan.id === current) ? current : nextPlans[0]?.id || "";
+      const currentPlan = nextPlans.find((plan) => plan.id === current);
+      if (currentPlan?.open) {
+        return current;
+      }
+      return nextPlans.find((plan) => plan.open)?.id || "";
     });
     setLockedUsdt(data.lockedUsdt || 0);
   }
@@ -82,7 +86,11 @@ export default function InvestPage() {
     try {
       const data = await createInvestment({ planId: selectedPlanId });
       applyPayload(data);
-      setInfo(data.investment?.referralPlan?.name ? `USDT locked in ${data.investment.referralPlan.name} for 1 year.` : "USDT locked for 1 year.");
+      setInfo(
+        data.investment?.referralPlan?.durationDays
+          ? `USDT purchased in ${data.investment.referralPlan.name} for ${data.investment.referralPlan.durationDays} days.`
+          : "USDT purchased."
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -123,7 +131,7 @@ export default function InvestPage() {
           <strong>{wallet ? `${formatUsdt(wallet.availableUsdt)} USDT` : "-"}</strong>
         </article>
         <article className="stat-card">
-          <p>Locked</p>
+          <p>Purchased</p>
           <strong>{formatUsdt(lockedUsdt)} USDT</strong>
         </article>
         <article className="stat-card">
@@ -137,11 +145,11 @@ export default function InvestPage() {
       </div>
 
       <div className="panel">
-        <h3>Lock USDT</h3>
+        <h3>Purchase</h3>
         <p className="muted">
-          Pick a plan. The lock uses that plan's amount exactly, for 1 year. You can lock in more than one plan. On claim, tokens = locked USDT × the token rate that day. Referral does not reduce this amount.
+          Pick a plan. The purchase uses that plan's amount exactly. Claim opens after the plan duration, counted from the purchase. You can purchase more than one plan. On claim, tokens = purchased USDT × the token rate that day. Referral does not reduce this amount.
         </p>
-        {plans.length === 0 ? <p className="error">No plan is open today. An active plan must include today's date.</p> : null}
+        {plans.length === 0 ? <p className="error">No active plan yet.</p> : null}
         {plans.length > 0 ? (
           <div className="method-grid">
             {plans.map((plan) => (
@@ -149,11 +157,16 @@ export default function InvestPage() {
                 key={plan.id}
                 type="button"
                 className={selectedPlanId === plan.id ? "method-card active" : "method-card"}
+                disabled={!plan.open}
                 onClick={() => setSelectedPlanId(plan.id)}
               >
                 {plan.name}
                 <small>
-                  {formatUsdt(plan.amountUsdt)} USDT · {plan.startDate} to {plan.endDate} · {plan.totalPercent}% referral
+                  {plan.amountUsdt > 0 ? `${formatUsdt(plan.amountUsdt)} USDT` : "Amount not set"}
+                  {" · "}
+                  {plan.durationDays > 0 ? `${plan.durationDays} days` : "Duration not set"}
+                  {" · "}
+                  {plan.totalPercent}% referral
                 </small>
               </button>
             ))}
@@ -162,29 +175,30 @@ export default function InvestPage() {
         <form className="auth-form deposit-form" onSubmit={onSubmit}>
           {selectedPlan ? (
             <p>
-              You will lock <strong>{formatUsdt(selectedPlan.amountUsdt)} USDT</strong> in {selectedPlan.name}.
+              You will purchase <strong>{formatUsdt(selectedPlan.amountUsdt)} USDT</strong> in {selectedPlan.name} for {selectedPlan.durationDays} days.
             </p>
           ) : null}
           <button className="gold-btn" type="submit" disabled={submitting || !selectedPlan}>
-            {submitting ? "Locking..." : selectedPlan ? `Lock ${formatUsdt(selectedPlan.amountUsdt)} USDT` : "Lock for 1 year"}
+            {submitting ? "Purchasing..." : selectedPlan ? `Purchase ${formatUsdt(selectedPlan.amountUsdt)} USDT` : "Choose a plan"}
           </button>
         </form>
       </div>
 
       <div className="panel">
-        <h3>Locks</h3>
+        <h3>Purchases</h3>
         {investments.length === 0 ? (
-          <p className="muted">No locks yet.</p>
+          <p className="muted">No purchases yet.</p>
         ) : (
           <>
             <div className="lock-table table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Locked</th>
+                    <th>Purchased</th>
                     <th>Plan</th>
                     <th>Amount</th>
-                    <th>Unlocks</th>
+                    <th>Duration</th>
+                    <th>Claim date</th>
                     <th>Status</th>
                     <th>Tokens</th>
                     <th></th>
@@ -196,9 +210,10 @@ export default function InvestPage() {
                       <td>{formatWhen(investment.lockedAt)}</td>
                       <td>{investment.referralPlan?.name || "-"}</td>
                       <td>{formatUsdt(investment.amountUsdt)} USDT</td>
+                      <td>{investment.referralPlan?.durationDays ? `${investment.referralPlan.durationDays} days` : "-"}</td>
                       <td>{formatWhen(investment.unlocksAt)}</td>
                       <td>
-                        <span className={`badge ${investment.status}`}>{investment.status}</span>
+                        <span className={`badge ${investment.status}`}>{investment.status === "locked" ? "Purchased" : "Claimed"}</span>
                       </td>
                       <td>{investment.tokensCredited ? formatUsdt(investment.tokensCredited) : "-"}</td>
                       <td>
@@ -217,7 +232,7 @@ export default function InvestPage() {
                       <p className="muted">Plan</p>
                       <strong>{investment.referralPlan?.name || "-"}</strong>
                     </div>
-                    <span className={`badge ${investment.status}`}>{investment.status}</span>
+                    <span className={`badge ${investment.status}`}>{investment.status === "locked" ? "Purchased" : "Claimed"}</span>
                   </div>
                   <div className="lock-card-grid">
                     <div>
@@ -229,11 +244,15 @@ export default function InvestPage() {
                       <strong>{investment.tokensCredited ? formatUsdt(investment.tokensCredited) : "-"}</strong>
                     </div>
                     <div>
-                      <span>Locked</span>
+                      <span>Purchased</span>
                       <strong>{formatWhen(investment.lockedAt)}</strong>
                     </div>
                     <div>
-                      <span>Unlocks</span>
+                      <span>Duration</span>
+                      <strong>{investment.referralPlan?.durationDays ? `${investment.referralPlan.durationDays} days` : "-"}</strong>
+                    </div>
+                    <div>
+                      <span>Claim date</span>
                       <strong>{formatWhen(investment.unlocksAt)}</strong>
                     </div>
                   </div>

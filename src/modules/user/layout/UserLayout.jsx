@@ -34,7 +34,7 @@ export default function UserLayout() {
             Overview
           </NavLink>
           <NavLink to="/dashboard/deposit">Deposit</NavLink>
-          <NavLink to="/dashboard/invest">Invest</NavLink>
+          <NavLink to="/dashboard/invest">Purchase</NavLink>
           <NavLink to="/dashboard/withdraw">Withdraw</NavLink>
           <NavLink to="/dashboard/referral">Referral</NavLink>
           <NavLink to="/dashboard/profile">Profile</NavLink>

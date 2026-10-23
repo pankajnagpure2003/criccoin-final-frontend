@@ -691,7 +691,8 @@ select {
 }
 
 table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
 }
 
@@ -702,6 +703,7 @@ td {
   border-bottom: 1px solid #2a303a;
   font-size: 14px;
   vertical-align: top;
+  white-space: nowrap;
 }
 
 .stack {
@@ -744,6 +746,10 @@ td {
   color: #c6c6c6;
 }
 
+.check-row input {
+  width: auto;
+}
+
 .method-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -774,6 +780,11 @@ td {
   box-shadow: inset 0 1px 0 rgba(255, 241, 184, 0.16);
 }
 
+.method-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .deposit-form {
   margin-top: 16px;
 }
@@ -796,7 +807,7 @@ td {
 
 .row-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   align-items: center;
 }
@@ -872,6 +883,107 @@ input.mini-input {
   font-size: 13px;
 }
 
+.user-search {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) minmax(180px, 1fr) auto auto;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.user-edit {
+  display: grid;
+  gap: 14px;
+  margin: 4px 0 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(240, 211, 107, 0.16);
+}
+
+.user-edit h3 {
+  margin: 0;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.pager .muted {
+  margin: 0;
+}
+
+.pager-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pager-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9aa3b2;
+  font-size: 13px;
+}
+
+.pager-size select {
+  width: auto;
+  padding: 8px 10px;
+}
+
+.pager-btn {
+  min-width: 36px;
+  padding: 8px 10px;
+  justify-content: center;
+}
+
+.pager-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.user-reset {
+  gap: 6px;
+}
+
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pdf-btn,
+.excel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pdf-btn {
+  background: #8a3a52;
+}
+
+.excel-btn {
+  background: #1f7a45;
+}
+
+.pdf-btn:hover,
+.excel-btn:hover {
+  filter: brightness(1.08);
+}
+
 @media (max-width: 800px) {
   .auth-screen {
     padding: 68px 16px 20px;
@@ -935,5 +1047,9 @@ input.mini-input {
   .lock-cards {
     display: grid;
     gap: 12px;
+  }
+
+  .user-search {
+    grid-template-columns: 1fr;
   }
 }
