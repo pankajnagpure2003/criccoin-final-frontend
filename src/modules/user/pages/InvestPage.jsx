@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Coins, PackageOpen, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
 import { claimInvestment, createInvestment, getInvestments } from "../api/investment.api.js";
 
@@ -126,21 +127,33 @@ export default function InvestPage() {
       {error ? <p className="error">{error}</p> : null}
       {info ? <p className="info">{info}</p> : null}
       <div className="stats">
-        <article className="stat-card featured">
-          <p>Available</p>
-          <strong>{wallet ? `${formatUsdt(wallet.availableUsdt)} USDT` : "-"}</strong>
+        <article className="stat-card featured money-summary-card">
+          <span className="summary-card-icon"><WalletCards size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Available</p>
+            <strong>{wallet ? `${formatUsdt(wallet.availableUsdt)} USDT` : "-"}</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Purchased</p>
-          <strong>{formatUsdt(lockedUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><ShoppingBag size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Purchased</p>
+            <strong>{formatUsdt(lockedUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Token balance</p>
-          <strong>{wallet ? formatUsdt(wallet.tokenBalance) : "-"}</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><Coins size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Token balance</p>
+            <strong>{wallet ? formatUsdt(wallet.tokenBalance) : "-"}</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Rate today</p>
-          <strong>{rateText}</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><TrendingUp size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Rate today</p>
+            <strong>{rateText}</strong>
+          </div>
         </article>
       </div>
 
@@ -160,14 +173,17 @@ export default function InvestPage() {
                 disabled={!plan.open}
                 onClick={() => setSelectedPlanId(plan.id)}
               >
-                {plan.name}
-                <small>
-                  {plan.amountUsdt > 0 ? `${formatUsdt(plan.amountUsdt)} USDT` : "Amount not set"}
-                  {" · "}
-                  {plan.durationDays > 0 ? `${plan.durationDays} days` : "Duration not set"}
-                  {" · "}
-                  {plan.totalPercent}% referral
-                </small>
+                <PackageOpen size={21} aria-hidden="true" />
+                <span className="method-card-copy">
+                  <strong>{plan.name}</strong>
+                  <small>
+                    {plan.amountUsdt > 0 ? `${formatUsdt(plan.amountUsdt)} USDT` : "Amount not set"}
+                    {" · "}
+                    {plan.durationDays > 0 ? `${plan.durationDays} days` : "Duration not set"}
+                    {" · "}
+                    {plan.totalPercent}% referral
+                  </small>
+                </span>
               </button>
             ))}
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import { FileSpreadsheet, FileText, RotateCcw, Search, UsersRound } from "lucide-react";
+import logoImg from "../../../assets/criccoin-logo-trans.png";
 import { COUNTRIES } from "../../user/data/countries.js";
 import { getUsers, logoutAdmin, quickLoginUser, updateUser } from "../api/admin.api.js";
 
@@ -96,12 +97,41 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function downloadExcel(users) {
+async function downloadExcel(users) {
+  const logoResponse = await fetch(logoImg);
+  if (!logoResponse.ok) {
+    throw new Error("Could not load the Criccoin logo for export.");
+  }
+  const logoBlob = await logoResponse.blob();
+  const logoDataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Could not prepare the Criccoin logo for export."));
+      }
+    };
+    reader.onerror = () => reject(reader.error || new Error("Could not read the Criccoin logo."));
+    reader.readAsDataURL(logoBlob);
+  });
   const head = `<tr>${EXPORT_COLUMNS.map((label) => `<th>${escapeHtml(label)}</th>`).join("")}</tr>`;
   const body = exportRows(users)
     .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
     .join("");
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><table>${head}${body}</table></body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+    body { font-family: Segoe UI, sans-serif; color: #111; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; font-size: 12px; text-align: left; }
+    th { background: #f4f4f4; }
+    .brand { text-align: center; }
+    .brand img { width: 64px; height: 64px; object-fit: contain; }
+    .brand-name { font-size: 22px; font-weight: 700; }
+    .brand-subtitle { font-size: 14px; color: #555; }
+  </style></head><body><table>
+    <tr><td colspan="${EXPORT_COLUMNS.length}" class="brand"><img src="${logoDataUrl}" alt="Criccoin logo"><br><span class="brand-name">Criccoin</span><br><span class="brand-subtitle">User Management</span></td></tr>
+    ${head}${body}
+  </table></body></html>`;
   const blob = new Blob([html], { type: "application/vnd.ms-excel" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -123,17 +153,33 @@ function openPdf(users) {
   popup.document.write(`<!DOCTYPE html><html><head><title>User Management</title>
     <style>
       body { font-family: Segoe UI, sans-serif; padding: 24px; color: #111; }
-      h1 { font-size: 18px; margin: 0 0 12px; }
+      .pdf-brand { display: grid; justify-items: center; gap: 4px; margin-bottom: 18px; text-align: center; }
+      .pdf-brand img { width: 64px; height: 64px; object-fit: contain; }
+      .pdf-brand h1 { font-size: 22px; margin: 0; }
+      .pdf-brand p { font-size: 14px; margin: 0; color: #555; }
       table { width: 100%; border-collapse: collapse; }
       th, td { border: 1px solid #ccc; padding: 6px 8px; font-size: 12px; text-align: left; }
       th { background: #f4f4f4; }
     </style></head><body>
-    <h1>User Management</h1>
+    <header class="pdf-brand">
+      <img class="pdf-brand-logo" src="${escapeHtml(logoImg)}" alt="Criccoin logo">
+      <h1>Criccoin</h1>
+      <p>User Management</p>
+    </header>
     <table><thead>${head}</thead><tbody>${body}</tbody></table>
     </body></html>`);
   popup.document.close();
-  popup.focus();
-  popup.print();
+  const logo = popup.document.querySelector(".pdf-brand-logo");
+  const printDocument = () => {
+    popup.focus();
+    popup.print();
+  };
+  if (logo.complete) {
+    printDocument();
+  } else {
+    logo.addEventListener("load", printDocument, { once: true });
+    logo.addEventListener("error", printDocument, { once: true });
+  }
   return true;
 }
 
@@ -233,6 +279,15 @@ export default function AdminUsersPage() {
     setPage(1);
     setInfo("");
     setError("");
+  }
+
+  async function onExcelExport() {
+    setError("");
+    try {
+      await downloadExcel(visibleUsers);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   function updateField(event) {
@@ -345,8 +400,20 @@ export default function AdminUsersPage() {
       <header className="topbar">
         <h2>User Management</h2>
       </header>
-      <div className="app-content">
-        <div className="panel">
+      <div className="app-content admin-users-page">
+        <div className="panel admin-users-panel">
+          <div className="admin-users-heading">
+            <span className="admin-users-heading-icon"><UsersRound size={20} aria-hidden="true" /></span>
+            <div>
+              <h3>Manage accounts</h3>
+              <p>Search, review, and update registered users.</p>
+            </div>
+            {!loading ? (
+              <span className="admin-users-count">
+                {users.length} {users.length === 1 ? "user" : "users"}
+              </span>
+            ) : null}
+          </div>
           <form className="user-search" onSubmit={executeSearch}>
             <label className="field">
               <span>Search Target Type</span>
@@ -367,6 +434,7 @@ export default function AdminUsersPage() {
               />
             </label>
             <button className="gold-btn compact" type="submit">
+              <Search size={16} aria-hidden="true" />
               Execute Search
             </button>
             <button className="ghost-btn user-reset" type="button" onClick={resetSearch}>
@@ -379,7 +447,7 @@ export default function AdminUsersPage() {
               <FileText size={16} />
               PDF
             </button>
-            <button className="excel-btn" type="button" onClick={() => downloadExcel(visibleUsers)}>
+            <button className="excel-btn" type="button" onClick={onExcelExport}>
               <FileSpreadsheet size={16} />
               Excel
             </button>

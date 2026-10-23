@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CircleDollarSign, TrendingUp, WalletCards } from "lucide-react";
+import { CircleDollarSign, Clock3, History, TrendingUp, WalletCards } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
 import PaymentMethodIcon from "../components/PaymentMethodIcon.jsx";
 import { createDeposit, getDepositOptions, getMyDeposits, getWallet, openCryptapiDeposit, refreshCryptapiDeposit } from "../api/deposit.api.js";
@@ -303,43 +303,72 @@ export default function DepositPage() {
         ) : null}
       </div>
 
-      <div className="panel">
-        <h3>Deposit history</h3>
-        {deposits.length === 0 ? (
-          <p className="muted">No deposits yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>When</th>
-                  <th>Method</th>
-                  <th>Paid</th>
-                  <th>USDT</th>
-                  <th>Reference</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deposits.map((deposit) => (
-                  <tr key={deposit._id}>
-                    <td>{formatWhen(deposit.createdAt)}</td>
-                    <td>{methodName(deposit.method)}</td>
-                    <td>{paidLabel(deposit)}</td>
-                    <td>{deposit.usdtAmount ? `${formatUsdt(deposit.usdtAmount)} USDT` : "-"}</td>
-                    <td>{deposit.reference}</td>
-                    <td>
-                      <span className={`badge ${deposit.status}`}>{deposit.status}</span>
-                      {deposit.note ? <p className="muted">{deposit.note}</p> : null}
-                      {deposit.rejectReason ? <p className="muted">{deposit.rejectReason}</p> : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <section className="panel deposit-history-panel">
+        <div className="deposit-history-heading">
+          <span className="deposit-history-heading-icon"><History size={19} aria-hidden="true" /></span>
+          <div>
+            <h3>Deposit history</h3>
+            <p>Your recent deposit requests and their status</p>
           </div>
+          <span className="deposit-history-count">{deposits.length} {deposits.length === 1 ? "record" : "records"}</span>
+        </div>
+        {deposits.length === 0 ? (
+          <p className="muted deposit-history-empty">No deposits yet. Your deposit requests will appear here.</p>
+        ) : (
+          <>
+            <div className="table-wrap deposit-history-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Method</th>
+                    <th>Paid</th>
+                    <th>USDT</th>
+                    <th>Reference</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deposits.map((deposit) => (
+                    <tr key={deposit._id}>
+                      <td>{formatWhen(deposit.createdAt)}</td>
+                      <td>{methodName(deposit.method)}</td>
+                      <td>{paidLabel(deposit)}</td>
+                      <td>{deposit.usdtAmount ? `${formatUsdt(deposit.usdtAmount)} USDT` : "-"}</td>
+                      <td>{deposit.reference}</td>
+                      <td>
+                        <span className={`badge ${deposit.status}`}>{deposit.status}</span>
+                        {deposit.note ? <p className="muted">{deposit.note}</p> : null}
+                        {deposit.rejectReason ? <p className="muted">{deposit.rejectReason}</p> : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="deposit-history-cards">
+              {deposits.map((deposit) => (
+                <article className="deposit-history-card" key={deposit._id}>
+                  <div className="deposit-history-card-heading">
+                    <div>
+                      <strong>{paidLabel(deposit)}</strong>
+                      <span>{methodName(deposit.method)}</span>
+                    </div>
+                    <span className={`badge ${deposit.status}`}>{deposit.status}</span>
+                  </div>
+                  <div className="deposit-history-card-details">
+                    <span><Clock3 size={13} aria-hidden="true" />{formatWhen(deposit.createdAt)}</span>
+                    <span>USDT amount <strong>{deposit.usdtAmount ? `${formatUsdt(deposit.usdtAmount)} USDT` : "-"}</strong></span>
+                    <span>Reference <strong>{deposit.reference || "-"}</strong></span>
+                  </div>
+                  {deposit.note ? <p className="muted">{deposit.note}</p> : null}
+                  {deposit.rejectReason ? <p className="error">{deposit.rejectReason}</p> : null}
+                </article>
+              ))}
+            </div>
+          </>
         )}
-      </div>
+      </section>
     </div>
   );
 }
