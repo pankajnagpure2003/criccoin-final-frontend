@@ -130,38 +130,44 @@ export default function WithdrawPage() {
             </button>
           ))}
         </div>
-        <form className="auth-form deposit-form" onSubmit={onSubmit}>
-          <label className="field">
-            <span>Amount (USDT)</span>
-            <input
-              inputMode="decimal"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              placeholder="10"
-              required
-            />
-          </label>
-          {(selected?.fields || []).map((field) => (
-            <label className="field" key={field.key}>
-              <span>{field.label}</span>
+        <div className="withdraw-form-box">
+          <div className="withdraw-form-heading">
+            <h4>Withdrawal details</h4>
+            <p>Enter the amount and payout information for your request.</p>
+          </div>
+          <form className="auth-form deposit-form" onSubmit={onSubmit}>
+            <label className="field">
+              <span>Amount (USDT)</span>
               <input
-                value={payout[field.key] || ""}
-                placeholder={field.placeholder || ""}
-                required={field.required}
-                onChange={(event) => setPayout((current) => ({ ...current, [field.key]: event.target.value }))}
+                inputMode="decimal"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+                placeholder="10"
+                required
               />
             </label>
-          ))}
-          <label className="field">
-            <span>Note</span>
-            <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
-          </label>
-          {error ? <p className="error">{error}</p> : null}
-          {info ? <p className="info">{info}</p> : null}
-          <button className="gold-btn" type="submit" disabled={submitting || !selected}>
-            {submitting ? "Submitting..." : "Request withdrawal"}
-          </button>
-        </form>
+            {(selected?.fields || []).map((field) => (
+              <label className="field" key={field.key}>
+                <span>{field.label}</span>
+                <input
+                  value={payout[field.key] || ""}
+                  placeholder={field.placeholder || ""}
+                  required={field.required}
+                  onChange={(event) => setPayout((current) => ({ ...current, [field.key]: event.target.value }))}
+                />
+              </label>
+            ))}
+            <label className="field">
+              <span>Note</span>
+              <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
+            </label>
+            {error ? <p className="error">{error}</p> : null}
+            {info ? <p className="info">{info}</p> : null}
+            <button className="gold-btn" type="submit" disabled={submitting || !selected}>
+              {submitting ? "Submitting..." : "Request withdrawal"}
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="panel">

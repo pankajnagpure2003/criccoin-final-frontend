@@ -1,5 +1,14 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  CircleUserRound,
+  LayoutDashboard,
+  LogOut,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
 import logoImg from "../../../assets/criccoin-logo-trans.png";
 import { authClient } from "../../../api/authClient.js";
 import { logoutUser } from "../api/userAuth.api.js";
@@ -31,23 +40,46 @@ export default function UserLayout() {
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/dashboard" end>
-            Overview
+            <LayoutDashboard size={17} aria-hidden="true" />
+            <span>Dashboard</span>
           </NavLink>
-          <NavLink to="/dashboard/deposit">Deposit</NavLink>
-          <NavLink to="/dashboard/withdraw">Withdraw</NavLink>
-          <NavLink to="/dashboard/referral">Referral</NavLink>
-          <NavLink to="/dashboard/profile">Profile</NavLink>
+          <NavLink to="/dashboard/deposit">
+            <ArrowDownToLine size={17} aria-hidden="true" />
+            <span>Deposit</span>
+          </NavLink>
+          <NavLink to="/dashboard/withdraw">
+            <ArrowUpFromLine size={17} aria-hidden="true" />
+            <span>Withdraw</span>
+          </NavLink>
+          <NavLink to="/dashboard/referral">
+            <UsersRound size={17} aria-hidden="true" />
+            <span>Referral</span>
+          </NavLink>
+          <NavLink to="/dashboard/profile">
+            <UserRound size={17} aria-hidden="true" />
+            <span>Profile</span>
+          </NavLink>
         </nav>
         <div className="sidebar-foot">
           <button type="button" className="sidebar-logout" onClick={logout}>
+            <LogOut size={17} aria-hidden="true" />
             Logout
           </button>
         </div>
       </aside>
       <div className="app-main">
         <header className="topbar">
-          <h2>Welcome{user?.firstName ? `, ${user.firstName}` : ""}</h2>
-          <span>{user?.email}</span>
+          <div className="user-topbar-title">
+            <p>CRICCOIN MEMBER AREA</p>
+            <h2>Welcome back{user?.firstName ? `, ${user.firstName}` : ""}</h2>
+          </div>
+          <div className="user-topbar-profile">
+            <span className="user-topbar-avatar"><CircleUserRound size={20} aria-hidden="true" /></span>
+            <span className="user-topbar-details">
+              <strong>{user?.firstName || "Member"}</strong>
+              <span>{user?.email || "Your account"}</span>
+            </span>
+          </div>
         </header>
         <div className="app-content">
           <Outlet />

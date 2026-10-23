@@ -188,7 +188,7 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="stack">
+    <div className="stack deposit-page">
       <div className="stats">
         <article className="stat-card">
           <p>Wallet balance</p>
