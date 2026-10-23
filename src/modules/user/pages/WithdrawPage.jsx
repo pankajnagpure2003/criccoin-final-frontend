@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Clock3, CircleDollarSign, WalletCards } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
+import PaymentMethodIcon from "../components/PaymentMethodIcon.jsx";
 import ProofImage from "../components/ProofImage.jsx";
 import { getWallet } from "../api/deposit.api.js";
 import { createWithdrawal, getMyWithdrawals, getWithdrawalOptions } from "../api/withdrawal.api.js";
@@ -98,17 +100,26 @@ export default function WithdrawPage() {
   return (
     <div className="stack">
       <div className="stats">
-        <article className="stat-card">
-          <p>Available</p>
-          <strong>{formatUsdt(wallet?.availableUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><CircleDollarSign size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Available</p>
+            <strong>{formatUsdt(wallet?.availableUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>On hold</p>
-          <strong>{formatUsdt(wallet?.heldUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><Clock3 size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>On hold</p>
+            <strong>{formatUsdt(wallet?.heldUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Wallet</p>
-          <strong>{formatUsdt(wallet?.balanceUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><WalletCards size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Wallet</p>
+            <strong>{formatUsdt(wallet?.balanceUsdt)} USDT</strong>
+          </div>
         </article>
       </div>
 
@@ -125,8 +136,11 @@ export default function WithdrawPage() {
               className={selected?.id === method.id ? "method-card active" : "method-card"}
               onClick={() => selectMethod(method.id)}
             >
-              {method.label}
-              <small>Manual payout</small>
+              <PaymentMethodIcon methodId={method.id} />
+              <span className="method-card-copy">
+                {method.label}
+                <small>Manual payout</small>
+              </span>
             </button>
           ))}
         </div>
