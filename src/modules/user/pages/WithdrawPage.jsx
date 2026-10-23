@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Clock3, CircleDollarSign, WalletCards } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
+import PaymentMethodIcon from "../components/PaymentMethodIcon.jsx";
 import ProofImage from "../components/ProofImage.jsx";
 import { getWallet } from "../api/deposit.api.js";
 import { createWithdrawal, getMyWithdrawals, getWithdrawalOptions } from "../api/withdrawal.api.js";
@@ -98,17 +100,26 @@ export default function WithdrawPage() {
   return (
     <div className="stack">
       <div className="stats">
-        <article className="stat-card">
-          <p>Available</p>
-          <strong>{formatUsdt(wallet?.availableUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><CircleDollarSign size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Available</p>
+            <strong>{formatUsdt(wallet?.availableUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>On hold</p>
-          <strong>{formatUsdt(wallet?.heldUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><Clock3 size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>On hold</p>
+            <strong>{formatUsdt(wallet?.heldUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Wallet</p>
-          <strong>{formatUsdt(wallet?.balanceUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><WalletCards size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Wallet</p>
+            <strong>{formatUsdt(wallet?.balanceUsdt)} USDT</strong>
+          </div>
         </article>
       </div>
 
@@ -125,43 +136,52 @@ export default function WithdrawPage() {
               className={selected?.id === method.id ? "method-card active" : "method-card"}
               onClick={() => selectMethod(method.id)}
             >
-              {method.label}
-              <small>Manual payout</small>
+              <PaymentMethodIcon methodId={method.id} />
+              <span className="method-card-copy">
+                {method.label}
+                <small>Manual payout</small>
+              </span>
             </button>
           ))}
         </div>
-        <form className="auth-form deposit-form" onSubmit={onSubmit}>
-          <label className="field">
-            <span>Amount (USDT)</span>
-            <input
-              inputMode="decimal"
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
-              placeholder="10"
-              required
-            />
-          </label>
-          {(selected?.fields || []).map((field) => (
-            <label className="field" key={field.key}>
-              <span>{field.label}</span>
+        <div className="withdraw-form-box">
+          <div className="withdraw-form-heading">
+            <h4>Withdrawal details</h4>
+            <p>Enter the amount and payout information for your request.</p>
+          </div>
+          <form className="auth-form deposit-form" onSubmit={onSubmit}>
+            <label className="field">
+              <span>Amount (USDT)</span>
               <input
-                value={payout[field.key] || ""}
-                placeholder={field.placeholder || ""}
-                required={field.required}
-                onChange={(event) => setPayout((current) => ({ ...current, [field.key]: event.target.value }))}
+                inputMode="decimal"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+                placeholder="10"
+                required
               />
             </label>
-          ))}
-          <label className="field">
-            <span>Note</span>
-            <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
-          </label>
-          {error ? <p className="error">{error}</p> : null}
-          {info ? <p className="info">{info}</p> : null}
-          <button className="gold-btn" type="submit" disabled={submitting || !selected}>
-            {submitting ? "Submitting..." : "Request withdrawal"}
-          </button>
-        </form>
+            {(selected?.fields || []).map((field) => (
+              <label className="field" key={field.key}>
+                <span>{field.label}</span>
+                <input
+                  value={payout[field.key] || ""}
+                  placeholder={field.placeholder || ""}
+                  required={field.required}
+                  onChange={(event) => setPayout((current) => ({ ...current, [field.key]: event.target.value }))}
+                />
+              </label>
+            ))}
+            <label className="field">
+              <span>Note</span>
+              <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional" />
+            </label>
+            {error ? <p className="error">{error}</p> : null}
+            {info ? <p className="info">{info}</p> : null}
+            <button className="gold-btn" type="submit" disabled={submitting || !selected}>
+              {submitting ? "Submitting..." : "Request withdrawal"}
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="panel">

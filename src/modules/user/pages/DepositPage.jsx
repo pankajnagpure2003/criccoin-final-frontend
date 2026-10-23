@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CircleDollarSign, TrendingUp, WalletCards } from "lucide-react";
 import { authClient } from "../../../api/authClient.js";
+import PaymentMethodIcon from "../components/PaymentMethodIcon.jsx";
 import { createDeposit, getDepositOptions, getMyDeposits, getWallet, openCryptapiDeposit, refreshCryptapiDeposit } from "../api/deposit.api.js";
 
 const METHOD_HINT = {
@@ -188,19 +190,28 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="stack">
+    <div className="stack deposit-page">
       <div className="stats">
-        <article className="stat-card">
-          <p>Wallet balance</p>
-          <strong>{formatUsdt(wallet?.availableUsdt ?? wallet?.balanceUsdt)} USDT</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><WalletCards size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Wallet balance</p>
+            <strong>{formatUsdt(wallet?.availableUsdt ?? wallet?.balanceUsdt)} USDT</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Conversion rate</p>
-          <strong>{rate?.inrPerUsdt ? `1 USDT = ${formatInr(rate.inrPerUsdt)} INR` : "-"}</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><TrendingUp size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Conversion rate</p>
+            <strong>{rate?.inrPerUsdt ? `1 USDT = ${formatInr(rate.inrPerUsdt)} INR` : "-"}</strong>
+          </div>
         </article>
-        <article className="stat-card">
-          <p>Estimated credit</p>
-          <strong>{estimated ? `${formatUsdt(estimated)} USDT` : "-"}</strong>
+        <article className="stat-card money-summary-card">
+          <span className="summary-card-icon"><CircleDollarSign size={21} aria-hidden="true" /></span>
+          <div className="summary-card-copy">
+            <p>Estimated credit</p>
+            <strong>{estimated ? `${formatUsdt(estimated)} USDT` : "-"}</strong>
+          </div>
         </article>
       </div>
 
@@ -215,8 +226,11 @@ export default function DepositPage() {
               className={selected?.id === method.id ? "method-card active" : "method-card"}
               onClick={() => setMethodId(method.id)}
             >
-              {method.label}
-              <small>{method.kind === "gateway" ? method.instructions?.networkLabel || "On-chain" : "Manual approval"}</small>
+              <PaymentMethodIcon methodId={method.id} />
+              <span className="method-card-copy">
+                {method.label}
+                <small>{method.kind === "gateway" ? method.instructions?.networkLabel || "On-chain" : "Manual approval"}</small>
+              </span>
             </button>
           ))}
         </div>
