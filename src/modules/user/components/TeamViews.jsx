@@ -14,17 +14,20 @@ const DEMO_MEMBERS = [
   { name: "Aadhya Joshi", username: "aadhya.demo", amount: 200 },
 ];
 
+const DEMO_PARENT_COUNT = 5;
+const DEMO_LEVEL_COUNT = 10;
+
 function createDemoMember(person, index, parentId, level) {
   const [firstName, ...lastNameParts] = person.name.split(" ");
   return {
-    id: `demo-member-${index + 1}`,
-    name: person.name,
+    id: `demo-member-${index}`,
+    name: level === 1 ? person.name : `${person.name} - L${level}`,
     firstName,
     lastName: lastNameParts.join(" "),
-    username: person.username,
-    email: `${person.username}@example.test`,
-    referralCode: `DEMO${String(index + 1).padStart(4, "0")}`,
-    isVerified: index % 2 === 0,
+    username: `${person.username}.l${level}`,
+    email: `${person.username}.l${level}@example.test`,
+    referralCode: `DEMO${String(index).padStart(4, "0")}`,
+    isVerified: index % 2 === 1,
     isActive: true,
     level,
     createdAt: new Date(Date.UTC(2026, 0, 5 + index * 3)).toISOString(),
@@ -36,19 +39,57 @@ function createDemoMember(person, index, parentId, level) {
 }
 
 function createDemoTree(tree) {
-  const directMembers = DEMO_MEMBERS.slice(0, 5).map((member, index) =>
-    createDemoMember(member, index, tree.id, 1)
-  );
-  const secondLevelMembers = DEMO_MEMBERS.slice(5).map((member, index) =>
-    createDemoMember(member, index + 5, directMembers[index].id, 2)
-  );
+  let memberIndex = 1;
+  const directMembers = DEMO_MEMBERS.slice(0, DEMO_PARENT_COUNT).map((person, parentIndex) => {
+    let parentId = tree.id;
+    let previousMember = null;
+    let directMember = null;
 
-  for (const [index, member] of secondLevelMembers.entries()) {
-    directMembers[index].teamBusinessUsdt = member.selfInvestmentUsdt;
-    directMembers[index].children = [member];
-  }
+    for (let level = 1; level <= DEMO_LEVEL_COUNT; level += 1) {
+      const seed = DEMO_MEMBERS[(parentIndex + level - 1) % DEMO_MEMBERS.length];
+      const member = createDemoMember(
+        seed,
+        memberIndex,
+        parentId,
+        level
+      );
+      memberIndex += 1;
+
+      if (!directMember) {
+        directMember = member;
+      }
+      if (previousMember) {
+        previousMember.children = [member];
+        previousMember.teamBusinessUsdt = member.selfInvestmentUsdt
+          + previousMember.teamBusinessUsdt;
+      }
+      previousMember = member;
+      parentId = member.id;
+    }
+
+    function calculateTeamBusiness(member) {
+      member.teamBusinessUsdt = member.children.reduce(
+        (total, child) => total + child.selfInvestmentUsdt + calculateTeamBusiness(child),
+        0
+      );
+      return member.teamBusinessUsdt;
+    }
+
+    calculateTeamBusiness(directMember);
+    return directMember;
+  });
 
   return { ...tree, children: directMembers };
+}
+
+function collectParentIds(member, ids = []) {
+  for (const child of member?.children || []) {
+    if (child.children.length > 0) {
+      ids.push(child.id);
+      collectParentIds(child, ids);
+    }
+  }
+  return ids;
 }
 
 function matchesFilters(member, filters) {
@@ -135,9 +176,9 @@ export default function TeamViews({ tree, onDemoModeChange }) {
 
   useEffect(() => {
     if (import.meta.env.DEV && showDemoData) {
-      setExpandedIds(new Set(DEMO_MEMBERS.slice(0, 5).map((_, index) => `demo-member-${index + 1}`)));
+      setExpandedIds(new Set(collectParentIds(displayTree)));
     }
-  }, [showDemoData]);
+  }, [displayTree, showDemoData]);
 
   const { visibleRows, matchingCount, totalCount } = useMemo(() => {
     const matchingIds = new Set();
@@ -215,7 +256,11 @@ export default function TeamViews({ tree, onDemoModeChange }) {
     <div className="team-views">
       {import.meta.env.DEV ? (
         <div className="team-demo-control">
-          <span>{showDemoData ? "Demo: 10 referrals, 5 direct parents" : "Showing live referral data"}</span>
+          <span>
+            {showDemoData
+              ? `Demo: ${DEMO_PARENT_COUNT * DEMO_LEVEL_COUNT} referrals · ${DEMO_PARENT_COUNT} direct parents · ${DEMO_LEVEL_COUNT} levels`
+              : "Showing live referral data"}
+          </span>
           <button
             type="button"
             className="team-demo-toggle"

@@ -96,9 +96,9 @@ export default function AdminTeamPage() {
       : visibleUsers;
   const summaryItems = [
     { label: "Direct members", value: showDemoData ? 5 : team?.summary.directMembers ?? "-", Icon: UsersRound },
-    { label: "Total team", value: showDemoData ? 10 : team?.summary.totalMembers ?? "-", Icon: Network },
-    { label: "Verified members", value: showDemoData ? 5 : team?.summary.verifiedMembers ?? "-", Icon: CheckCircle2 },
-    { label: "Team levels", value: showDemoData ? 2 : team?.summary.levels ?? "-", Icon: Network },
+    { label: "Total team", value: showDemoData ? 50 : team?.summary.totalMembers ?? "-", Icon: Network },
+    { label: "Verified members", value: showDemoData ? 25 : team?.summary.verifiedMembers ?? "-", Icon: CheckCircle2 },
+    { label: "Team levels", value: showDemoData ? 10 : team?.summary.levels ?? "-", Icon: Network },
   ];
 
   return (
