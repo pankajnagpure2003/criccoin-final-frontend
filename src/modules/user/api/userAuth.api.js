@@ -28,6 +28,10 @@ export function getMe() {
   return authClient.get("/api/auth/me", { auth: true });
 }
 
+export function getMyTeam() {
+  return authClient.get("/api/auth/team", { auth: true });
+}
+
 export function logoutUser() {
   authClient.clearSession("user");
 }

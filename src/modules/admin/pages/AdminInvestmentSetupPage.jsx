@@ -220,7 +220,7 @@ export default function AdminInvestmentSetupPage() {
             </button>
           </form>
 
-          <div className="panel stack">
+          <div className="panel stack admin-investment-plans">
             <h3>Referral plans</h3>
             <p className="muted">
               Several plans can stay active together. A user pays each plan's amount exactly. Claim opens after that plan's duration, counted from the purchase. Updating one plan does not change another plan, and purchases already made keep their own copy.
@@ -228,8 +228,8 @@ export default function AdminInvestmentSetupPage() {
             {plans.length === 0 ? (
               <p className="muted">No plans yet.</p>
             ) : (
-              <div className="table-wrap">
-                <table>
+              <div className="table-wrap admin-plan-table-wrap">
+                <table className="admin-plan-table">
                   <thead>
                     <tr>
                       <th>Name</th>

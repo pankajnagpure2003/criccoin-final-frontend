@@ -8,7 +8,10 @@ import {
   Coins,
   LayoutDashboard,
   LogOut,
+  Menu,
+  Network,
   UserRound,
+  X,
   UsersRound,
 } from "lucide-react";
 import logoImg from "../../../assets/criccoin-logo-trans.png";
@@ -19,6 +22,7 @@ export default function UserLayout() {
   const navigate = useNavigate();
   const user = authClient.getProfile("user");
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
   useEffect(() => {
@@ -52,43 +56,76 @@ export default function UserLayout() {
     };
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    if (!mobileNavOpen) {
+      return undefined;
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileNavOpen]);
+
   function logout() {
+    setMobileNavOpen(false);
     logoutUser();
     navigate("/login");
   }
 
   return (
     <div className="app-shell user-dashboard">
-      <aside className="sidebar">
+      <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"} id="user-mobile-sidebar">
         <div className="brand sidebar-brand">
           <div className="sidebar-brand-heading">
             <img className="sidebar-logo" src={logoImg} alt="" />
             <span className="brand-mark">Criccoin</span>
           </div>
+          <button
+            className="mobile-sidebar-close"
+            type="button"
+            aria-label="Close navigation menu"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
           <p className="brand-tag">USER PANEL</p>
         </div>
         <nav className="sidebar-nav">
-          <NavLink to="/dashboard" end>
+          <NavLink to="/dashboard" end onClick={() => setMobileNavOpen(false)}>
             <LayoutDashboard size={20} aria-hidden="true" />
             <span>Dashboard</span>
           </NavLink>
-          <NavLink to="/dashboard/deposit">
+          <NavLink to="/dashboard/deposit" onClick={() => setMobileNavOpen(false)}>
             <CircleDollarSign size={20} aria-hidden="true" />
             <span>Deposit</span>
           </NavLink>
-          <NavLink to="/dashboard/invest">
+          <NavLink to="/dashboard/invest" onClick={() => setMobileNavOpen(false)}>
             <Coins size={20} aria-hidden="true" />
             <span>Purchase</span>
           </NavLink>
-          <NavLink to="/dashboard/withdraw">
+          <NavLink to="/dashboard/withdraw" onClick={() => setMobileNavOpen(false)}>
             <ArrowUpFromLine size={20} aria-hidden="true" />
             <span>Withdraw</span>
           </NavLink>
-          <NavLink to="/dashboard/referral">
+          <NavLink to="/dashboard/referral" onClick={() => setMobileNavOpen(false)}>
             <UsersRound size={20} aria-hidden="true" />
             <span>Referral</span>
           </NavLink>
-          <NavLink to="/dashboard/profile">
+          <NavLink to="/dashboard/team" onClick={() => setMobileNavOpen(false)}>
+            <Network size={20} aria-hidden="true" />
+            <span>My Team</span>
+          </NavLink>
+          <NavLink to="/dashboard/profile" onClick={() => setMobileNavOpen(false)}>
             <CircleUserRound size={20} aria-hidden="true" />
             <span>Profile</span>
           </NavLink>
@@ -100,11 +137,31 @@ export default function UserLayout() {
           </button>
         </div>
       </aside>
+      {mobileNavOpen ? (
+        <button
+          className="mobile-sidebar-backdrop"
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
       <div className="app-main">
         <header className="topbar">
-          <div className="user-topbar-title">
-            <p>CRICCOIN MEMBER AREA</p>
-            <h2>Welcome back{user?.firstName ? `, ${user.firstName}` : ""}</h2>
+          <div className="topbar-heading">
+            <button
+              className="mobile-sidebar-toggle"
+              type="button"
+              aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileNavOpen}
+              aria-controls="user-mobile-sidebar"
+              onClick={() => setMobileNavOpen((open) => !open)}
+            >
+              {mobileNavOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+            </button>
+            <div className="user-topbar-title">
+              <p>CRICCOIN MEMBER AREA</p>
+              <h2>Welcome back{user?.firstName ? `, ${user.firstName}` : ""}</h2>
+            </div>
           </div>
           <div className="user-topbar-menu" ref={profileMenuRef}>
             <button

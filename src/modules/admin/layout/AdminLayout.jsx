@@ -7,7 +7,10 @@ import {
   ClipboardCheck,
   Coins,
   LogOut,
+  Menu,
+  Network,
   Settings,
+  X,
   UsersRound,
 } from "lucide-react";
 import logoImg from "../../../assets/criccoin-logo-trans.png";
@@ -21,12 +24,14 @@ const PAGE_TITLES = {
   "/admin/payment-setup": "Payment setup",
   "/admin/investment-setup": "Investment setup",
   "/admin/claim-requests": "Claim requests",
+  "/admin/team": "My Team",
 };
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileMenuRef = useRef(null);
   const pageTitle = PAGE_TITLES[location.pathname] || "Administration";
 
@@ -61,45 +66,78 @@ export default function AdminLayout() {
     };
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    if (!mobileNavOpen) {
+      return undefined;
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileNavOpen]);
+
   function logout() {
+    setMobileNavOpen(false);
     logoutAdmin();
     navigate("/admin/login");
   }
 
   return (
     <div className="app-shell admin-dashboard">
-      <aside className="sidebar">
+      <aside className={mobileNavOpen ? "sidebar mobile-open" : "sidebar"} id="admin-mobile-sidebar">
         <div className="brand sidebar-brand">
           <div className="sidebar-brand-heading">
             <img className="sidebar-logo" src={logoImg} alt="" />
             <span className="brand-mark">Criccoin</span>
           </div>
+          <button
+            className="mobile-sidebar-close"
+            type="button"
+            aria-label="Close navigation menu"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
           <p className="brand-tag">ADMIN</p>
         </div>
         <nav className="sidebar-nav">
-          <NavLink to="/admin/users">
+          <NavLink to="/admin/users" onClick={() => setMobileNavOpen(false)}>
             <UsersRound size={20} aria-hidden="true" />
             <span>Users</span>
           </NavLink>
-          <NavLink to="/admin/deposits">
+          <NavLink to="/admin/deposits" onClick={() => setMobileNavOpen(false)}>
             <CircleDollarSign size={20} aria-hidden="true" />
             <span>Deposits</span>
           </NavLink>
-          <NavLink to="/admin/withdrawals">
+          <NavLink to="/admin/withdrawals" onClick={() => setMobileNavOpen(false)}>
             <ArrowUpFromLine size={20} aria-hidden="true" />
             <span>Withdrawals</span>
           </NavLink>
-          <NavLink to="/admin/payment-setup">
+          <NavLink to="/admin/payment-setup" onClick={() => setMobileNavOpen(false)}>
             <Settings size={20} aria-hidden="true" />
             <span>Payment setup</span>
           </NavLink>
-          <NavLink to="/admin/investment-setup">
+          <NavLink to="/admin/investment-setup" onClick={() => setMobileNavOpen(false)}>
             <Coins size={20} aria-hidden="true" />
             <span>Investment setup</span>
           </NavLink>
-          <NavLink to="/admin/claim-requests">
+          <NavLink to="/admin/claim-requests" onClick={() => setMobileNavOpen(false)}>
             <ClipboardCheck size={20} aria-hidden="true" />
             <span>Claim requests</span>
+          </NavLink>
+          <NavLink to="/admin/team" onClick={() => setMobileNavOpen(false)}>
+            <Network size={20} aria-hidden="true" />
+            <span>My Team</span>
           </NavLink>
         </nav>
         <div className="sidebar-foot">
@@ -109,11 +147,31 @@ export default function AdminLayout() {
           </button>
         </div>
       </aside>
+      {mobileNavOpen ? (
+        <button
+          className="mobile-sidebar-backdrop"
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
       <div className="app-main">
         <header className="topbar">
-          <div className="user-topbar-title">
-            <p>CRICCOIN ADMIN AREA</p>
-            <h2>{pageTitle}</h2>
+          <div className="topbar-heading">
+            <button
+              className="mobile-sidebar-toggle"
+              type="button"
+              aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileNavOpen}
+              aria-controls="admin-mobile-sidebar"
+              onClick={() => setMobileNavOpen((open) => !open)}
+            >
+              {mobileNavOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+            </button>
+            <div className="user-topbar-title">
+              <p>CRICCOIN ADMIN AREA</p>
+              <h2>{pageTitle}</h2>
+            </div>
           </div>
           <div className="user-topbar-menu" ref={profileMenuRef}>
             <button

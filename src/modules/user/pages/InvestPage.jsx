@@ -326,7 +326,7 @@ export default function InvestPage() {
         </div>
       ) : null}
 
-      <div className="panel">
+      <div className="panel purchase-history-panel">
         <h3>Purchases</h3>
         {investments.length === 0 ? (
           <p className="muted">No purchases yet.</p>

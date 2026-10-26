@@ -8,6 +8,10 @@ export function getUsers() {
   return authClient.get("/api/admin/users", { auth: true, role: "admin" });
 }
 
+export function getAdminTeam(id) {
+  return authClient.get(`/api/admin/team/${id}`, { auth: true, role: "admin" });
+}
+
 export async function quickLoginUser(id) {
   const data = await authClient.post(`/api/admin/users/${id}/quick-login`, {}, { auth: true, role: "admin" });
   authClient.setSession("user", { token: data.userToken, user: data.user });
