@@ -535,7 +535,7 @@ select {
   flex-direction: column;
   min-width: 0;
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .topbar {
@@ -559,6 +559,15 @@ select {
 
 .app-content {
   padding: 24px;
+}
+
+.app-main > .app-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stats {
@@ -4429,6 +4438,37 @@ input.mini-input {
   text-align: center;
 }
 
+.team-branch-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.team-branch-controls button {
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid rgba(223, 168, 91, 0.42);
+  border-radius: 8px;
+  color: #f5d88e;
+  background: rgba(212, 175, 55, 0.1);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.team-branch-controls button:hover:not(:disabled) {
+  border-color: #f4cf5e;
+  color: #241b08;
+  background: linear-gradient(135deg, #fff1b8, #d4af37);
+}
+
+.team-branch-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .team-visual-controls input:focus {
   border-color: #ffd447;
   outline: 2px solid rgba(255, 212, 71, 0.2);
@@ -4444,8 +4484,7 @@ input.mini-input {
   background:
     radial-gradient(ellipse at 50% 0, rgba(65, 84, 91, 0.22), transparent 55%),
     linear-gradient(180deg, #1b252a 0%, #11191d 56%, #0e1519 100%);
-  overscroll-behavior-x: contain;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: contain;
   touch-action: none;
   user-select: none;
   scrollbar-color: #9b7923 #192125;
@@ -4495,12 +4534,51 @@ input.mini-input {
 }
 
 .team-visual-node {
+  position: relative;
   display: flex;
   min-height: 60px;
   align-items: flex-start;
   gap: 10px;
   color: #f5f5f3;
   transition: opacity 0.18s ease, filter 0.18s ease;
+}
+
+.team-visual-node-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 28px;
+  left: 22px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  padding: 0;
+  border: 3px solid #111719;
+  border-radius: 50%;
+  color: #fff;
+  background: #b98b12;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(255, 218, 90, 0.5), 0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.team-visual-node-toggle:hover {
+  background: #d4a51c;
+  box-shadow: 0 0 0 2px rgba(255, 230, 137, 0.6), 0 3px 9px rgba(0, 0, 0, 0.5);
+}
+
+.team-visual-node-toggle svg {
+  transition: transform 0.16s ease;
+}
+
+.team-visual-node-toggle[aria-expanded="false"] svg {
+  transform: rotate(-90deg);
+}
+
+.team-visual-node-toggle:focus-visible {
+  outline: 2px solid #fff0a6;
+  outline-offset: 2px;
 }
 
 .team-visual-node.is-dimmed {
@@ -4513,9 +4591,9 @@ input.mini-input {
 
 .team-visual-avatar {
   display: block;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   border: 2px solid #be9012;
   border-radius: 50%;
   background: #f6c83e;
@@ -4525,6 +4603,7 @@ input.mini-input {
 .team-visual-node-details {
   display: grid;
   min-width: 0;
+  flex: 1;
   gap: 2px;
   padding-top: 1px;
   font-size: 10px;
@@ -4971,6 +5050,13 @@ input.mini-input {
     border-width: 2px;
   }
 
+  .team-visual-node-toggle {
+    top: 25px;
+    left: 19px;
+    width: 34px;
+    height: 34px;
+  }
+
   .team-visual-node-details {
     font-size: 9px;
   }
@@ -5310,6 +5396,24 @@ input.mini-input {
   .app-shell {
     width: 100%;
     min-width: 0;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .app-main {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .app-main > .app-content {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
   }
 
   .sidebar {

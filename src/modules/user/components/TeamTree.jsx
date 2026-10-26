@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { ChevronDown, ChevronRight, Minus, Plus, RotateCcw } from "lucide-react";
 
 const NODE_WIDTH = 180;
 const SLOT_WIDTH = 205;
@@ -26,7 +26,17 @@ function getMaximumLevel(member, depth = 0) {
   );
 }
 
-function prepareLayout(root, visibleLevels) {
+function getBranchIds(member, ids = []) {
+  if (member?.children?.length) {
+    ids.push(member.id);
+    for (const child of member.children) {
+      getBranchIds(child, ids);
+    }
+  }
+  return ids;
+}
+
+function prepareLayout(root, visibleLevels, collapsedIds) {
   const rows = [];
   const links = [];
   let leafIndex = 0;
@@ -39,7 +49,9 @@ function prepareLayout(root, visibleLevels) {
     const node = { member, depth, parent, x: 0 };
     row.push(node);
 
-    const children = depth < visibleLevels ? member.children || [] : [];
+    const children = depth < visibleLevels && !collapsedIds.has(member.id)
+      ? member.children || []
+      : [];
     if (children.length === 0) {
       node.x = leafIndex * SLOT_WIDTH + SLOT_WIDTH / 2;
       leafIndex += 1;
@@ -76,15 +88,32 @@ function collectAncestors(member, query, ancestors = new Set()) {
   return matches || descendantMatches;
 }
 
-function TreeNode({ node, highlight, dimmed }) {
+function TreeNode({ node, highlight, dimmed, collapsed, onToggle }) {
   const { member, depth, parent } = node;
   const sponsor = parent ? memberName(parent.member) : "Unknown";
+  const hasChildren = member.children.length > 0;
 
   return (
     <article
       className={`team-visual-node${highlight ? " is-highlighted" : ""}${dimmed ? " is-dimmed" : ""}`}
       aria-label={`${memberName(member)}, level ${depth}, self investment ${formatUsdt(member.selfInvestmentUsdt)} USDT, team business ${formatUsdt(member.teamBusinessUsdt)} USDT`}
     >
+      {hasChildren ? (
+        <button
+          type="button"
+          className="team-visual-node-toggle"
+          aria-label={`${collapsed ? "Expand" : "Collapse"} ${memberName(member)} referrals`}
+          aria-expanded={!collapsed}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggle(member.id);
+          }}
+        >
+          {collapsed
+            ? <ChevronRight size={23} strokeWidth={3} aria-hidden="true" />
+            : <ChevronDown size={23} strokeWidth={3} aria-hidden="true" />}
+        </button>
+      ) : null}
       <span className="team-visual-avatar" aria-hidden="true" />
       <span className="team-visual-node-details">
         <strong title={memberName(member)}>{memberName(member)}</strong>
@@ -98,16 +127,24 @@ function TreeNode({ node, highlight, dimmed }) {
 
 export default function TeamTree({ tree }) {
   const maxLevel = getMaximumLevel(tree);
+  const branchIds = useMemo(() => getBranchIds(tree), [tree]);
   const [levelLimit, setLevelLimit] = useState(Math.max(1, Math.min(10, maxLevel || 1)));
   const [search, setSearch] = useState("");
+  const [collapsedIds, setCollapsedIds] = useState(() => new Set());
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const viewportRef = useRef(null);
   const dragRef = useRef(null);
   const wheelZoomRef = useRef(null);
-  const layout = useMemo(() => prepareLayout(tree, levelLimit), [tree, levelLimit]);
+  const panRef = useRef(pan);
+  const layout = useMemo(
+    () => prepareLayout(tree, levelLimit, collapsedIds),
+    [tree, levelLimit, collapsedIds]
+  );
   const scaledWidth = Math.ceil(layout.width * zoom);
   const scaledHeight = Math.ceil(layout.height * zoom);
+  panRef.current = pan;
   const highlightedIds = useMemo(() => {
     const ids = new Set();
     if (search.trim()) {
@@ -124,11 +161,19 @@ export default function TeamTree({ tree }) {
       return;
     }
 
-    const scale = zoom / anchor.zoom;
-    viewport.scrollLeft = (anchor.scrollLeft + anchor.x) * scale - anchor.x;
-    viewport.scrollTop = (anchor.scrollTop + anchor.y) * scale - anchor.y;
+    const nextPan = {
+      x: anchor.cursorX - anchor.treeX * zoom,
+      y: anchor.cursorY - anchor.treeY * zoom,
+    };
+    const minX = Math.min(0, viewport.clientWidth - scaledWidth);
+    const maxX = Math.max(0, viewport.clientWidth - scaledWidth);
+    const minY = Math.min(0, viewport.clientHeight - scaledHeight);
+    const maxY = Math.max(0, viewport.clientHeight - scaledHeight);
+    nextPan.x = Math.min(maxX, Math.max(minX, nextPan.x));
+    nextPan.y = Math.min(maxY, Math.max(minY, nextPan.y));
+    setPan(nextPan);
     wheelZoomRef.current = null;
-  }, [zoom]);
+  }, [zoom, scaledWidth, scaledHeight]);
 
   function zoomWithWheel(event) {
     event.preventDefault();
@@ -146,12 +191,14 @@ export default function TeamTree({ tree }) {
     }
 
     const bounds = event.currentTarget.getBoundingClientRect();
+    const currentPan = panRef.current;
+    const cursorX = event.clientX - bounds.left;
+    const cursorY = event.clientY - bounds.top;
     wheelZoomRef.current = {
-      zoom,
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
-      scrollLeft: event.currentTarget.scrollLeft,
-      scrollTop: event.currentTarget.scrollTop,
+      cursorX,
+      cursorY,
+      treeX: (cursorX - currentPan.x) / zoom,
+      treeY: (cursorY - currentPan.y) / zoom,
     };
     setZoom(nextZoom);
   }
@@ -167,41 +214,74 @@ export default function TeamTree({ tree }) {
   }, [zoom]);
 
   function startPan(event) {
-    if (event.button !== 0 || event.target.closest("button, input, label")) {
+    if (event.button !== 0 || event.target.closest("button")) {
       return;
     }
     dragRef.current = {
       pointerId: event.pointerId,
       x: event.clientX,
       y: event.clientY,
-      scrollLeft: viewportRef.current.scrollLeft,
-      scrollTop: viewportRef.current.scrollTop,
+      panX: pan.x,
+      panY: pan.y,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
     setIsDragging(true);
   }
 
-  function pan(event) {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId || !viewportRef.current) {
-      return;
+  useLayoutEffect(() => {
+    if (!isDragging) {
+      return undefined;
     }
-    viewportRef.current.scrollLeft = drag.scrollLeft - (event.clientX - drag.x);
-    viewportRef.current.scrollTop = drag.scrollTop - (event.clientY - drag.y);
-  }
 
-  function stopPan(event) {
-    if (dragRef.current?.pointerId === event.pointerId) {
-      dragRef.current = null;
-      setIsDragging(false);
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
+    function handlePointerMove(event) {
+      const drag = dragRef.current;
+      const viewport = viewportRef.current;
+      if (!drag || drag.pointerId !== event.pointerId || !viewport) {
+        return;
+      }
+      const nextX = drag.panX + event.clientX - drag.x;
+      const nextY = drag.panY + event.clientY - drag.y;
+      const minX = Math.min(0, viewport.clientWidth - scaledWidth);
+      const maxX = Math.max(0, viewport.clientWidth - scaledWidth);
+      const minY = Math.min(0, viewport.clientHeight - scaledHeight);
+      const maxY = Math.max(0, viewport.clientHeight - scaledHeight);
+      setPan({
+        x: Math.min(maxX, Math.max(minX, nextX)),
+        y: Math.min(maxY, Math.max(minY, nextY)),
+      });
+    }
+
+    function handlePointerEnd(event) {
+      if (dragRef.current?.pointerId === event.pointerId) {
+        dragRef.current = null;
+        setIsDragging(false);
       }
     }
-  }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerEnd);
+    window.addEventListener("pointercancel", handlePointerEnd);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerEnd);
+      window.removeEventListener("pointercancel", handlePointerEnd);
+    };
+  }, [isDragging, scaledWidth, scaledHeight]);
 
   function changeZoom(amount) {
     setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number((current + amount).toFixed(1)))));
+  }
+
+  function toggleBranch(memberId) {
+    setCollapsedIds((current) => {
+      const next = new Set(current);
+      if (next.has(memberId)) {
+        next.delete(memberId);
+      } else {
+        next.add(memberId);
+      }
+      return next;
+    });
   }
 
   if (!tree) {
@@ -263,31 +343,45 @@ export default function TeamTree({ tree }) {
             <RotateCcw size={15} aria-hidden="true" />
           </button>
         </div>
+        <div className="team-branch-controls" role="group" aria-label="Tree branch controls">
+          <button
+            type="button"
+            disabled={branchIds.length === 0 || collapsedIds.size === 0}
+            onClick={() => setCollapsedIds(new Set())}
+          >
+            Expand All
+          </button>
+          <button
+            type="button"
+            disabled={branchIds.length === 0 || branchIds.every((id) => collapsedIds.has(id))}
+            onClick={() => setCollapsedIds(new Set(branchIds))}
+          >
+            Collapse All
+          </button>
+        </div>
       </div>
       <div
         ref={viewportRef}
         className={`team-visual-scroll${isDragging ? " is-dragging" : ""}`}
         role="region"
-        aria-label="Referral tree. Use the mouse wheel to zoom and drag to pan."
+        aria-label="Referral tree. Use the mouse wheel to zoom, drag to pan, and branch buttons to expand or collapse referrals."
         tabIndex="0"
         onPointerDown={startPan}
-        onPointerMove={pan}
-        onPointerUp={stopPan}
-        onPointerCancel={stopPan}
-        onLostPointerCapture={() => {
-          dragRef.current = null;
-          setIsDragging(false);
-        }}
       >
         <div
           className="team-visual-stage"
-          style={{ width: `${scaledWidth}px`, height: `${scaledHeight}px` }}
+          style={{
+            width: `${Math.max(scaledWidth, viewportRef.current?.clientWidth || 0)}px`,
+            height: `${Math.max(scaledHeight, viewportRef.current?.clientHeight || 0)}px`,
+          }}
         >
           <div
             className="team-visual-canvas"
             style={{
               width: `${layout.width}px`,
               height: `${layout.height}px`,
+              left: `${pan.x}px`,
+              top: `${pan.y}px`,
               transform: `scale(${zoom})`,
             }}
           >
@@ -327,6 +421,8 @@ export default function TeamTree({ tree }) {
                       node={node}
                       highlight={highlighted}
                       dimmed={hasSearch && !highlighted}
+                      collapsed={collapsedIds.has(node.member.id)}
+                      onToggle={toggleBranch}
                     />
                   </div>
                 );
