@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Building2, CheckCircle2, Coins, CreditCard, Save, Wallet } from "lucide-react";
 import { getDepositSettings, saveDepositSettings } from "../api/deposit.api.js";
 import { logoutAdmin } from "../api/admin.api.js";
 
@@ -81,32 +82,64 @@ export default function AdminPaymentSetupPage() {
   }
 
   if (loading) {
-    return <p className="app-content">Loading...</p>;
+    return <p className="app-content dashboard-loading">Loading payment settings...</p>;
   }
 
   return (
-    <>
-      <header className="topbar">
-        <h2>Payment setup</h2>
-      </header>
-      <div className="app-content">
-        <form className="stack" onSubmit={onSubmit}>
-          <div className="panel">
-            <h3>USDT conversion</h3>
-            <p className="muted">User pays in INR. On approval, this rate converts that amount into USDT for the wallet. You can still edit the USDT amount on each deposit.</p>
+    <div className="app-content admin-payment-page">
+      <section className="admin-payment-intro">
+        <div>
+          <p className="admin-payment-eyebrow">PAYMENT CONFIGURATION</p>
+          <h1>Manage payment methods</h1>
+          <p>Manage the rates and payment details customers see when they deposit.</p>
+        </div>
+        <div className="admin-payment-status">
+          <span className="admin-payment-status-icon"><CheckCircle2 size={18} aria-hidden="true" /></span>
+          <span>
+            <strong>Configuration</strong>
+            <small>Updates apply to new deposits</small>
+          </span>
+        </div>
+      </section>
+
+      <form className="admin-payment-form" onSubmit={onSubmit}>
+        {error ? <p className="error">{error}</p> : null}
+        {info ? <p className="info">{info}</p> : null}
+        <section className="panel admin-payment-card admin-payment-rate">
+          <div className="admin-payment-card-heading">
+            <span className="admin-payment-icon"><Coins size={20} aria-hidden="true" /></span>
+            <div>
+              <h2>USDT conversion rate</h2>
+              <p>Set the rate used when converting INR deposits into USDT.</p>
+            </div>
+          </div>
+          <div className="admin-payment-rate-control">
             <label className="field">
               <span>INR for 1 USDT</span>
-              <input
-                inputMode="decimal"
-                value={form.inrPerUsdt}
-                onChange={(event) => setForm((current) => ({ ...current, inrPerUsdt: event.target.value }))}
-                required
-              />
+              <span className="admin-payment-input-wrap">
+                <span className="admin-payment-input-prefix" aria-hidden="true">INR</span>
+                <input
+                  inputMode="decimal"
+                  value={form.inrPerUsdt}
+                  onChange={(event) => setForm((current) => ({ ...current, inrPerUsdt: event.target.value }))}
+                  required
+                />
+              </span>
             </label>
+            <p>Users pay in INR. When you approve a deposit, this rate calculates the USDT credited to their wallet. You can still adjust the credited amount for each deposit.</p>
           </div>
-          <div className="panel">
-            <h3>Bank transfer</h3>
-            <div className="auth-form">
+        </section>
+
+        <div className="admin-payment-method-grid">
+          <section className="panel admin-payment-card">
+            <div className="admin-payment-card-heading">
+              <span className="admin-payment-icon"><Building2 size={20} aria-hidden="true" /></span>
+              <div>
+                <h2>Bank transfer</h2>
+                <p>Bank details shown to users for deposits.</p>
+              </div>
+            </div>
+            <div className="admin-payment-fields">
               <label className="field">
                 <span>Account name</span>
                 <input value={form.bank.accountName} onChange={(event) => setBank("accountName", event.target.value)} />
@@ -128,13 +161,17 @@ export default function AdminPaymentSetupPage() {
                 <input value={form.bank.branch} onChange={(event) => setBank("branch", event.target.value)} />
               </label>
             </div>
-          </div>
-          <div className="panel">
-            <h3>USDT deposit wallet</h3>
-            <p className="muted">
-              Users send USDT to a CryptAPI address, and it is forwarded here. Set PUBLIC_API_URL to a public HTTPS address so payments can confirm while the deposit page is closed.
-            </p>
-            <div className="auth-form">
+          </section>
+
+          <section className="panel admin-payment-card">
+            <div className="admin-payment-card-heading">
+              <span className="admin-payment-icon"><Wallet size={20} aria-hidden="true" /></span>
+              <div>
+                <h2>USDT deposit wallet</h2>
+                <p>Choose a network and add the receiving address.</p>
+              </div>
+            </div>
+            <div className="admin-payment-fields">
               <label className="field">
                 <span>Network</span>
                 <select
@@ -149,7 +186,7 @@ export default function AdminPaymentSetupPage() {
                 </select>
               </label>
               <label className="field">
-                <span>Receiving USDT address</span>
+                <span>Receiving wallet address</span>
                 <input
                   value={form.cryptapi.address}
                   onChange={(event) =>
@@ -159,10 +196,18 @@ export default function AdminPaymentSetupPage() {
                 />
               </label>
             </div>
-          </div>
-          <div className="panel">
-            <h3>UPI</h3>
-            <div className="auth-form">
+            <p className="admin-payment-help">Payments are forwarded to this wallet. For automatic confirmations while the deposit page is closed, set <code>PUBLIC_API_URL</code> to a public HTTPS address.</p>
+          </section>
+
+          <section className="panel admin-payment-card">
+            <div className="admin-payment-card-heading">
+              <span className="admin-payment-icon"><CreditCard size={20} aria-hidden="true" /></span>
+              <div>
+                <h2>UPI</h2>
+                <p>UPI payment details shown to users.</p>
+              </div>
+            </div>
+            <div className="admin-payment-fields">
               <label className="field">
                 <span>UPI ID</span>
                 <input value={form.upi.upiId} onChange={(event) => setUpi("upiId", event.target.value)} />
@@ -172,14 +217,17 @@ export default function AdminPaymentSetupPage() {
                 <input value={form.upi.payeeName} onChange={(event) => setUpi("payeeName", event.target.value)} />
               </label>
             </div>
-          </div>
-          {error ? <p className="error">{error}</p> : null}
-          {info ? <p className="info">{info}</p> : null}
+          </section>
+        </div>
+
+        <div className="admin-payment-actions">
+          <p>Review your details before saving. Changes only affect new deposits.</p>
           <button className="gold-btn compact" type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save setup"}
+            <Save size={17} aria-hidden="true" />
+            {saving ? "Saving changes..." : "Save payment setup"}
           </button>
-        </form>
-      </div>
-    </>
+        </div>
+      </form>
+    </div>
   );
 }

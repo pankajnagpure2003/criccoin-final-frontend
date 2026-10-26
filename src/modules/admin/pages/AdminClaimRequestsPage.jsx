@@ -109,10 +109,6 @@ export default function AdminClaimRequestsPage() {
   }
 
   return (
-    <>
-      <header className="topbar">
-        <h2>Claim requests</h2>
-      </header>
       <div className="app-content stack">
         <div className="filter-row">
           {FILTERS.map((filter) => (
@@ -233,6 +229,5 @@ export default function AdminClaimRequestsPage() {
           )}
         </div>
       </div>
-    </>
   );
 }

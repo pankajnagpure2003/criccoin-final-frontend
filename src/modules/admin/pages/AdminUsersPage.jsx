@@ -396,10 +396,6 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <>
-      <header className="topbar">
-        <h2>User Management</h2>
-      </header>
       <div className="app-content admin-users-page">
         <div className="panel admin-users-panel">
           <div className="admin-users-heading">
@@ -669,6 +665,5 @@ export default function AdminUsersPage() {
           ) : null}
         </div>
       </div>
-    </>
   );
 }

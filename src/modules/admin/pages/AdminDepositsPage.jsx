@@ -95,12 +95,10 @@ export default function AdminDepositsPage() {
   }
 
   return (
-    <>
-      <header className="topbar">
-        <h2>Deposits</h2>
-        <span>{rate?.inrPerUsdt ? `1 USDT = ${formatInr(rate.inrPerUsdt)} INR` : "Set the conversion rate"}</span>
-      </header>
       <div className="app-content stack">
+        <p className="admin-page-note">
+          {rate?.inrPerUsdt ? `Current conversion rate: 1 USDT = ${formatInr(rate.inrPerUsdt)} INR` : "Set the conversion rate"}
+        </p>
         <div className="filter-row">
           {FILTERS.map((filter) => (
             <button
@@ -203,6 +201,5 @@ export default function AdminDepositsPage() {
           )}
         </div>
       </div>
-    </>
   );
 }

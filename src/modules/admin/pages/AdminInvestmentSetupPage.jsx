@@ -197,10 +197,6 @@ export default function AdminInvestmentSetupPage() {
   const totalLabel = planCheck.totalCents === null ? "-" : `${formatPercent(planCheck.totalCents)}%`;
 
   return (
-    <>
-      <header className="topbar">
-        <h2>Investment setup</h2>
-      </header>
       <div className="app-content">
         <div className="stack">
           {error ? <p className="error">{error}</p> : null}
@@ -359,6 +355,5 @@ export default function AdminInvestmentSetupPage() {
           </form>
         </div>
       </div>
-    </>
   );
 }
