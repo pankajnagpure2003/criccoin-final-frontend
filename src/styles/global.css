@@ -4387,6 +4387,48 @@ input.mini-input {
   width: 205px;
 }
 
+.team-zoom-controls {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 5px;
+  padding: 3px;
+  border: 1px solid rgba(223, 168, 91, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.team-zoom-controls button {
+  display: grid;
+  width: 32px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #f0c781;
+  background: transparent;
+  cursor: pointer;
+}
+
+.team-zoom-controls button:hover:not(:disabled) {
+  border-color: rgba(223, 168, 91, 0.35);
+  color: #fff1b8;
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.team-zoom-controls button:disabled {
+  color: #71685e;
+  cursor: not-allowed;
+}
+
+.team-zoom-controls span {
+  min-width: 42px;
+  color: #eee4d9;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .team-visual-controls input:focus {
   border-color: #ffd447;
   outline: 2px solid rgba(255, 212, 71, 0.2);
@@ -4397,13 +4439,21 @@ input.mini-input {
   min-width: 0;
   min-height: 440px;
   overflow: auto;
+  cursor: grab;
   border-radius: 12px;
   background:
     radial-gradient(ellipse at 50% 0, rgba(65, 84, 91, 0.22), transparent 55%),
     linear-gradient(180deg, #1b252a 0%, #11191d 56%, #0e1519 100%);
   overscroll-behavior-x: contain;
+  overscroll-behavior-y: contain;
+  touch-action: none;
+  user-select: none;
   scrollbar-color: #9b7923 #192125;
   scrollbar-width: thin;
+}
+
+.team-visual-scroll.is-dragging {
+  cursor: grabbing;
 }
 
 .team-visual-scroll:focus-visible {
@@ -4411,11 +4461,17 @@ input.mini-input {
   outline-offset: 2px;
 }
 
-.team-visual-canvas {
+.team-visual-stage {
   position: relative;
   min-width: 100%;
-  min-height: 420px;
-  margin: 0 auto;
+}
+
+.team-visual-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  will-change: transform;
 }
 
 .team-visual-connectors {
@@ -4894,6 +4950,10 @@ input.mini-input {
 
   .team-visual-controls .team-visual-search input {
     width: 100%;
+  }
+
+  .team-zoom-controls {
+    margin-left: auto;
   }
 
   .team-visual-node-position {
