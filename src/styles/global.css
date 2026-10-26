@@ -4913,6 +4913,18 @@ input.mini-input {
   white-space: nowrap;
 }
 
+.team-level-table .team-level-row {
+  background: linear-gradient(90deg, var(--team-level-surface), transparent 75%);
+}
+
+.team-level-table .team-level-row > td:first-child {
+  box-shadow: inset 3px 0 0 var(--team-level-accent);
+}
+
+.team-level-table .team-level-row:hover {
+  background: linear-gradient(90deg, var(--team-level-surface), rgba(255, 255, 255, 0.035));
+}
+
 .team-level-table tbody tr:hover {
   background: rgba(212, 175, 55, 0.045);
 }
@@ -4929,6 +4941,11 @@ input.mini-input {
   padding-left: calc(var(--member-depth, 0) * 18px);
 }
 
+.team-member-row-username {
+  color: var(--team-level-accent, #e8bd48);
+  font-weight: 750;
+}
+
 .team-member-row-toggle,
 .team-member-row-spacer {
   display: grid;
@@ -4940,17 +4957,17 @@ input.mini-input {
 
 .team-member-row-toggle {
   padding: 0;
-  border: 1px solid rgba(223, 168, 91, 0.42);
+  border: 1px solid color-mix(in srgb, var(--team-level-accent, #e8bd48) 55%, transparent);
   border-radius: 7px;
-  color: #f0c781;
-  background: rgba(212, 175, 55, 0.09);
+  color: var(--team-level-accent, #e8bd48);
+  background: color-mix(in srgb, var(--team-level-accent, #e8bd48) 12%, transparent);
   cursor: pointer;
 }
 
 .team-member-row-toggle:hover:not(:disabled) {
-  border-color: #f0c781;
+  border-color: var(--team-level-accent, #e8bd48);
   color: #211908;
-  background: #e8bd48;
+  background: var(--team-level-accent, #e8bd48);
 }
 
 .team-member-row-toggle:disabled {
@@ -4966,10 +4983,10 @@ input.mini-input {
 .team-level-tag {
   display: inline-flex;
   padding: 5px 8px;
-  border: 1px solid rgba(223, 168, 91, 0.2);
+  border: 1px solid color-mix(in srgb, var(--team-level-accent, #e8bd48) 55%, transparent);
   border-radius: 999px;
-  color: #e7c58f;
-  background: rgba(212, 175, 55, 0.07);
+  color: var(--team-level-accent, #e8bd48);
+  background: color-mix(in srgb, var(--team-level-accent, #e8bd48) 12%, transparent);
   font-size: 10px;
   font-weight: 700;
 }

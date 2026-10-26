@@ -16,6 +16,26 @@ const DEMO_MEMBERS = [
 
 const DEMO_PARENT_COUNT = 5;
 const DEMO_LEVEL_COUNT = 10;
+const LEVEL_COLORS = [
+  { accent: "#e8bd48", surface: "rgba(232, 189, 72, 0.075)" },
+  { accent: "#63c7b2", surface: "rgba(99, 199, 178, 0.075)" },
+  { accent: "#77a9f5", surface: "rgba(119, 169, 245, 0.075)" },
+  { accent: "#bd91f4", surface: "rgba(189, 145, 244, 0.075)" },
+  { accent: "#ee91b0", surface: "rgba(238, 145, 176, 0.075)" },
+  { accent: "#f19a68", surface: "rgba(241, 154, 104, 0.075)" },
+  { accent: "#b4c96c", surface: "rgba(180, 201, 108, 0.075)" },
+  { accent: "#5eb6e8", surface: "rgba(94, 182, 232, 0.075)" },
+  { accent: "#e27c76", surface: "rgba(226, 124, 118, 0.075)" },
+  { accent: "#d1a879", surface: "rgba(209, 168, 121, 0.075)" },
+];
+
+function levelStyle(level) {
+  const colors = LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length];
+  return {
+    "--team-level-accent": colors.accent,
+    "--team-level-surface": colors.surface,
+  };
+}
 
 function createDemoMember(person, index, parentId, level) {
   const [firstName, ...lastNameParts] = person.name.split(" ");
@@ -82,16 +102,6 @@ function createDemoTree(tree) {
   return { ...tree, children: directMembers };
 }
 
-function collectParentIds(member, ids = []) {
-  for (const child of member?.children || []) {
-    if (child.children.length > 0) {
-      ids.push(child.id);
-      collectParentIds(child, ids);
-    }
-  }
-  return ids;
-}
-
 function matchesFilters(member, filters) {
   if (filters.directOnly && member.level !== 1) {
     return false;
@@ -153,11 +163,7 @@ export default function TeamViews({ tree, onDemoModeChange }) {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [directOnly, setDirectOnly] = useState(false);
-  const [expandedIds, setExpandedIds] = useState(() =>
-    import.meta.env.DEV && (tree?.children?.length || 0) === 0
-      ? new Set(DEMO_MEMBERS.slice(0, 5).map((_, index) => `demo-member-${index + 1}`))
-      : new Set()
-  );
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
   const [filters, setFilters] = useState({ username: "", fromDate: "", toDate: "", directOnly: false });
   const displayTree = useMemo(
     () => (showDemoData && tree ? createDemoTree(tree) : tree),
@@ -173,12 +179,6 @@ export default function TeamViews({ tree, onDemoModeChange }) {
   useEffect(() => {
     onDemoModeChange?.(import.meta.env.DEV && showDemoData);
   }, [onDemoModeChange, showDemoData]);
-
-  useEffect(() => {
-    if (import.meta.env.DEV && showDemoData) {
-      setExpandedIds(new Set(collectParentIds(displayTree)));
-    }
-  }, [displayTree, showDemoData]);
 
   const { visibleRows, matchingCount, totalCount } = useMemo(() => {
     const matchingIds = new Set();
@@ -225,6 +225,14 @@ export default function TeamViews({ tree, onDemoModeChange }) {
       totalCount: total,
     };
   }, [displayTree, filters, expandedIds]);
+  const parentSerialNumbers = useMemo(() => {
+    let serialNumber = 0;
+    return new Map(
+      visibleRows
+        .filter((member) => member.level === 1)
+        .map((member) => [member.id, ++serialNumber])
+    );
+  }, [visibleRows]);
 
   function applyFilters(event) {
     event.preventDefault();
@@ -237,6 +245,11 @@ export default function TeamViews({ tree, onDemoModeChange }) {
     setToDate("");
     setDirectOnly(false);
     setFilters({ username: "", fromDate: "", toDate: "", directOnly: false });
+    setExpandedIds(new Set());
+  }
+
+  function toggleDemoData() {
+    setShowDemoData((current) => !current);
     setExpandedIds(new Set());
   }
 
@@ -265,7 +278,7 @@ export default function TeamViews({ tree, onDemoModeChange }) {
             type="button"
             className="team-demo-toggle"
             aria-pressed={showDemoData}
-            onClick={() => setShowDemoData((current) => !current)}
+            onClick={toggleDemoData}
           >
             {showDemoData ? "Show live data" : "Show demo data"}
           </button>
@@ -321,9 +334,9 @@ export default function TeamViews({ tree, onDemoModeChange }) {
               </tr>
             </thead>
             <tbody>
-              {visibleRows.map((member, index) => (
-                <tr key={member.id}>
-                  <td>{index + 1}</td>
+              {visibleRows.map((member) => (
+                <tr className="team-level-row" key={member.id} style={levelStyle(member.level)}>
+                  <td>{parentSerialNumbers.get(member.id) || ""}</td>
                   <td>
                     <span className="team-member-table-identity" style={{ "--member-depth": member.level - 1 }}>
                       {member.children.length > 0 ? (
@@ -340,7 +353,7 @@ export default function TeamViews({ tree, onDemoModeChange }) {
                             : <ChevronRight size={15} aria-hidden="true" />}
                         </button>
                       ) : <span className="team-member-row-spacer" aria-hidden="true" />}
-                      <span>{member.username || member.referralCode || "-"}</span>
+                      <span className="team-member-row-username">{member.username || member.referralCode || "-"}</span>
                     </span>
                   </td>
                   <td>{member.firstName || member.name?.split(/\s+/)[0] || "-"}</td>
