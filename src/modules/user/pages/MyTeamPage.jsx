@@ -9,6 +9,7 @@ export default function MyTeamPage() {
   const navigate = useNavigate();
   const [team, setTeam] = useState(null);
   const [error, setError] = useState("");
+  const [showDemoData, setShowDemoData] = useState(false);
 
   useEffect(() => {
     if (!authClient.isAuthenticated("user")) {
@@ -36,10 +37,10 @@ export default function MyTeamPage() {
   }
 
   const summaryItems = [
-    { label: "Direct members", value: team.summary.directMembers, Icon: UsersRound },
-    { label: "Total team", value: team.summary.totalMembers, Icon: Network },
-    { label: "Verified members", value: team.summary.verifiedMembers, Icon: CheckCircle2 },
-    { label: "Team levels", value: team.summary.levels, Icon: Network },
+    { label: "Direct members", value: showDemoData ? 5 : team.summary.directMembers, Icon: UsersRound },
+    { label: "Total team", value: showDemoData ? 10 : team.summary.totalMembers, Icon: Network },
+    { label: "Verified members", value: showDemoData ? 5 : team.summary.verifiedMembers, Icon: CheckCircle2 },
+    { label: "Team levels", value: showDemoData ? 2 : team.summary.levels, Icon: Network },
   ];
 
   return (
@@ -63,7 +64,7 @@ export default function MyTeamPage() {
           </article>
         ))}
       </div>
-      <TeamViews tree={team.tree} />
+      <TeamViews tree={team.tree} onDemoModeChange={setShowDemoData} />
     </div>
   );
 }

@@ -95,24 +95,25 @@ function TreeNode({ node, highlight, dimmed, collapsed, onToggle }) {
 
   return (
     <article
-      className={`team-visual-node${highlight ? " is-highlighted" : ""}${dimmed ? " is-dimmed" : ""}`}
+      className={`team-visual-node${hasChildren ? " is-parent" : ""}${highlight ? " is-highlighted" : ""}${dimmed ? " is-dimmed" : ""}`}
       aria-label={`${memberName(member)}, level ${depth}, self investment ${formatUsdt(member.selfInvestmentUsdt)} USDT, team business ${formatUsdt(member.teamBusinessUsdt)} USDT`}
+      role={hasChildren ? "button" : undefined}
+      tabIndex={hasChildren ? 0 : undefined}
+      aria-expanded={hasChildren ? !collapsed : undefined}
+      onClick={hasChildren ? () => onToggle(member.id) : undefined}
+      onKeyDown={hasChildren ? (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onToggle(member.id);
+        }
+      } : undefined}
     >
       {hasChildren ? (
-        <button
-          type="button"
-          className="team-visual-node-toggle"
-          aria-label={`${collapsed ? "Expand" : "Collapse"} ${memberName(member)} referrals`}
-          aria-expanded={!collapsed}
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggle(member.id);
-          }}
-        >
+        <span className="team-visual-node-toggle" aria-hidden="true">
           {collapsed
             ? <ChevronRight size={23} strokeWidth={3} aria-hidden="true" />
             : <ChevronDown size={23} strokeWidth={3} aria-hidden="true" />}
-        </button>
+        </span>
       ) : null}
       <span className="team-visual-avatar" aria-hidden="true" />
       <span className="team-visual-node-details">
@@ -214,7 +215,7 @@ export default function TeamTree({ tree }) {
   }, [zoom]);
 
   function startPan(event) {
-    if (event.button !== 0 || event.target.closest("button")) {
+    if (event.button !== 0 || event.target.closest("button, .team-visual-node.is-parent")) {
       return;
     }
     dragRef.current = {
