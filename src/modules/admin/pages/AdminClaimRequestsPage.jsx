@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CircleCheck, CircleX, ClipboardCheck, Clock3, Layers3 } from "lucide-react";
 import { logoutAdmin } from "../api/admin.api.js";
 import { approveClaimRequest, getClaimRequests, rejectClaimRequest } from "../api/investment.api.js";
 
 const FILTERS = [
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "all", label: "All" },
+  { id: "pending", label: "Pending", Icon: Clock3 },
+  { id: "approved", label: "Approved", Icon: CircleCheck },
+  { id: "rejected", label: "Rejected", Icon: CircleX },
+  { id: "all", label: "All", Icon: Layers3 },
 ];
 
 function formatUsdt(value) {
@@ -109,30 +110,45 @@ export default function AdminClaimRequestsPage() {
   }
 
   return (
-      <div className="app-content stack">
-        <div className="filter-row">
-          {FILTERS.map((filter) => (
+      <div className="app-content stack admin-request-page admin-claim-page">
+        <header className="admin-request-heading">
+          <span className="admin-request-icon claim-request-icon">
+            <ClipboardCheck size={25} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="admin-request-eyebrow">INVESTMENT OPERATIONS</p>
+            <h1>Claim requests</h1>
+            <p>Verify claim and payout details, then record the transaction hash after payment.</p>
+          </div>
+          <span className="admin-request-count">{requests.length} requests shown</span>
+        </header>
+        <div className="filter-row admin-request-filters" aria-label="Filter claim requests by status">
+          {FILTERS.map(({ id, label, Icon }) => (
             <button
-              key={filter.id}
+              key={id}
               type="button"
-              className={status === filter.id ? "ghost-btn active" : "ghost-btn"}
-              onClick={() => setStatus(filter.id)}
+              className={status === id ? "ghost-btn active" : "ghost-btn"}
+              onClick={() => setStatus(id)}
             >
-              {filter.label}
+              <Icon size={16} aria-hidden="true" />
+              {label}
             </button>
           ))}
         </div>
         {error ? <p className="error">{error}</p> : null}
         {info ? <p className="info">{info}</p> : null}
-        <div className="panel">
-          <p className="muted">
+        <div className="panel admin-request-panel">
+          <p className="muted admin-claim-guidance">
             Check the user, payout details, plan, invested amount, and token value at the current rate. Pay manually, then submit the transaction hash. Approving credits that token amount to the user's token wallet.
           </p>
           {requests.length === 0 ? (
-            <p className="muted">No claim requests in this list.</p>
+            <div className="admin-request-empty">
+              <strong>No claims to show</strong>
+              <span>There are no claim requests in this status.</span>
+            </div>
           ) : (
             <div className="table-wrap">
-              <table>
+              <table className="admin-request-table">
                 <thead>
                   <tr>
                     <th>User</th>

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CircleArrowDown, CircleCheck, CircleX, Clock3, Layers3 } from "lucide-react";
 import { approveDeposit, getAdminDeposits, rejectDeposit } from "../api/deposit.api.js";
 import { logoutAdmin } from "../api/admin.api.js";
 
 const FILTERS = [
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "", label: "All" },
+  { id: "pending", label: "Pending", Icon: Clock3 },
+  { id: "approved", label: "Approved", Icon: CircleCheck },
+  { id: "rejected", label: "Rejected", Icon: CircleX },
+  { id: "", label: "All", Icon: Layers3 },
 ];
 
 function formatInr(value) {
@@ -95,30 +96,45 @@ export default function AdminDepositsPage() {
   }
 
   return (
-      <div className="app-content stack">
-        <p className="admin-page-note">
+      <div className="app-content stack admin-request-page admin-deposit-page">
+        <header className="admin-request-heading">
+          <span className="admin-request-icon deposit-request-icon">
+            <CircleArrowDown size={25} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="admin-request-eyebrow">PAYMENT OPERATIONS</p>
+            <h1>Deposit requests</h1>
+            <p>Review incoming payments, verify details, and credit USDT to user wallets.</p>
+          </div>
+          <span className="admin-request-count">{deposits.length} requests shown</span>
+        </header>
+        <p className="admin-page-note admin-request-rate">
           {rate?.inrPerUsdt ? `Current conversion rate: 1 USDT = ${formatInr(rate.inrPerUsdt)} INR` : "Set the conversion rate"}
         </p>
-        <div className="filter-row">
-          {FILTERS.map((filter) => (
+        <div className="filter-row admin-request-filters" aria-label="Filter deposits by status">
+          {FILTERS.map(({ id, label, Icon }) => (
             <button
-              key={filter.label}
+              key={label}
               type="button"
-              className={status === filter.id ? "ghost-btn active" : "ghost-btn"}
-              onClick={() => setStatus(filter.id)}
+              className={status === id ? "ghost-btn active" : "ghost-btn"}
+              onClick={() => setStatus(id)}
             >
-              {filter.label}
+              <Icon size={16} aria-hidden="true" />
+              {label}
             </button>
           ))}
         </div>
         {error ? <p className="error">{error}</p> : null}
         {info ? <p className="info">{info}</p> : null}
-        <div className="panel">
+        <div className="panel admin-request-panel">
           {deposits.length === 0 ? (
-            <p className="muted">No deposits in this list.</p>
+            <div className="admin-request-empty">
+              <strong>No deposits to show</strong>
+              <span>There are no deposit requests in this status.</span>
+            </div>
           ) : (
             <div className="table-wrap">
-              <table>
+              <table className="admin-request-table">
                 <thead>
                   <tr>
                     <th>User</th>

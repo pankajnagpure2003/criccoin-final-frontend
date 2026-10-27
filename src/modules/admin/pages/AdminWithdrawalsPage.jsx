@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowUpFromLine, CircleCheck, CircleX, Clock3, Layers3 } from "lucide-react";
 import { logoutAdmin } from "../api/admin.api.js";
 import { approveWithdrawal, getAdminWithdrawalProof, getAdminWithdrawals, rejectWithdrawal } from "../api/withdrawal.api.js";
 import ProofImage from "../../user/components/ProofImage.jsx";
 
 const FILTERS = [
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "", label: "All" },
+  { id: "pending", label: "Pending", Icon: Clock3 },
+  { id: "approved", label: "Approved", Icon: CircleCheck },
+  { id: "rejected", label: "Rejected", Icon: CircleX },
+  { id: "", label: "All", Icon: Layers3 },
 ];
 
 function formatUsdt(value) {
@@ -96,27 +97,42 @@ export default function AdminWithdrawalsPage() {
   }
 
   return (
-      <div className="app-content stack">
-        <div className="filter-row">
-          {FILTERS.map((filter) => (
+      <div className="app-content stack admin-request-page admin-withdrawal-page">
+        <header className="admin-request-heading">
+          <span className="admin-request-icon withdrawal-request-icon">
+            <ArrowUpFromLine size={25} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="admin-request-eyebrow">PAYMENT OPERATIONS</p>
+            <h1>Withdrawal requests</h1>
+            <p>Review payout details, attach payment proof, and approve or reject withdrawals.</p>
+          </div>
+          <span className="admin-request-count">{withdrawals.length} requests shown</span>
+        </header>
+        <div className="filter-row admin-request-filters" aria-label="Filter withdrawals by status">
+          {FILTERS.map(({ id, label, Icon }) => (
             <button
-              key={filter.label}
+              key={label}
               type="button"
-              className={status === filter.id ? "ghost-btn active" : "ghost-btn"}
-              onClick={() => setStatus(filter.id)}
+              className={status === id ? "ghost-btn active" : "ghost-btn"}
+              onClick={() => setStatus(id)}
             >
-              {filter.label}
+              <Icon size={16} aria-hidden="true" />
+              {label}
             </button>
           ))}
         </div>
         {error ? <p className="error">{error}</p> : null}
         {info ? <p className="info">{info}</p> : null}
-        <div className="panel">
+        <div className="panel admin-request-panel">
           {withdrawals.length === 0 ? (
-            <p className="muted">No withdrawals in this list.</p>
+            <div className="admin-request-empty">
+              <strong>No withdrawals to show</strong>
+              <span>There are no withdrawal requests in this status.</span>
+            </div>
           ) : (
             <div className="table-wrap">
-              <table>
+              <table className="admin-request-table">
                 <thead>
                   <tr>
                     <th>User</th>
