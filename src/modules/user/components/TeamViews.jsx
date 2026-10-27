@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  BadgeCheck,
+  ChevronDown,
+  ChevronRight,
+  CircleDollarSign,
+  Crown,
+  Gem,
+  Medal,
+  Shield,
+  Star,
+  Trophy,
+} from "lucide-react";
 
 const DEMO_MEMBERS = [
   { name: "Aarav Sharma", username: "aarav.demo", amount: 250 },
@@ -17,16 +28,28 @@ const DEMO_MEMBERS = [
 const DEMO_PARENT_COUNT = 5;
 const DEMO_LEVEL_COUNT = 10;
 const LEVEL_COLORS = [
-  { accent: "#e8bd48", surface: "rgba(232, 189, 72, 0.075)" },
-  { accent: "#63c7b2", surface: "rgba(99, 199, 178, 0.075)" },
-  { accent: "#77a9f5", surface: "rgba(119, 169, 245, 0.075)" },
-  { accent: "#bd91f4", surface: "rgba(189, 145, 244, 0.075)" },
-  { accent: "#ee91b0", surface: "rgba(238, 145, 176, 0.075)" },
-  { accent: "#f19a68", surface: "rgba(241, 154, 104, 0.075)" },
-  { accent: "#b4c96c", surface: "rgba(180, 201, 108, 0.075)" },
-  { accent: "#5eb6e8", surface: "rgba(94, 182, 232, 0.075)" },
-  { accent: "#e27c76", surface: "rgba(226, 124, 118, 0.075)" },
-  { accent: "#d1a879", surface: "rgba(209, 168, 121, 0.075)" },
+  { accent: "#f6c844", surface: "rgba(246, 200, 68, 0.09)" },
+  { accent: "#12d8bd", surface: "rgba(18, 216, 189, 0.09)" },
+  { accent: "#299cff", surface: "rgba(41, 156, 255, 0.09)" },
+  { accent: "#bd63f3", surface: "rgba(189, 99, 243, 0.09)" },
+  { accent: "#f0528c", surface: "rgba(240, 82, 140, 0.09)" },
+  { accent: "#ff8838", surface: "rgba(255, 136, 56, 0.09)" },
+  { accent: "#a9e33b", surface: "rgba(169, 227, 59, 0.09)" },
+  { accent: "#09d5e8", surface: "rgba(9, 213, 232, 0.09)" },
+  { accent: "#fa4d55", surface: "rgba(250, 77, 85, 0.09)" },
+  { accent: "#f6c844", surface: "rgba(246, 200, 68, 0.09)" },
+];
+const LEVEL_ICONS = [
+  Crown,
+  Trophy,
+  Medal,
+  Trophy,
+  BadgeCheck,
+  CircleDollarSign,
+  Gem,
+  Trophy,
+  Shield,
+  Star,
 ];
 
 function levelStyle(level) {
@@ -225,6 +248,10 @@ export default function TeamViews({ tree, onDemoModeChange }) {
       totalCount: total,
     };
   }, [displayTree, filters, expandedIds]);
+  const maxTeamBusiness = visibleRows.reduce(
+    (max, member) => Math.max(max, Number(member.teamBusinessUsdt) || 0),
+    0
+  );
   const parentSerialNumbers = useMemo(() => {
     let serialNumber = 0;
     return new Map(
@@ -334,37 +361,56 @@ export default function TeamViews({ tree, onDemoModeChange }) {
               </tr>
             </thead>
             <tbody>
-              {visibleRows.map((member) => (
-                <tr className="team-level-row" key={member.id} style={levelStyle(member.level)}>
-                  <td>{parentSerialNumbers.get(member.id) || ""}</td>
-                  <td>
-                    <span className="team-member-table-identity" style={{ "--member-depth": member.level - 1 }}>
-                      {member.children.length > 0 ? (
-                        <button
-                          className="team-member-row-toggle"
-                          type="button"
-                          aria-label={`${expandedIds.has(member.id) ? "Collapse" : "Expand"} referrals for ${member.username || member.name}`}
-                          aria-expanded={expandedIds.has(member.id)}
-                          disabled={filters.directOnly}
-                          onClick={() => toggleMember(member.id)}
-                        >
-                          {expandedIds.has(member.id)
-                            ? <ChevronDown size={15} aria-hidden="true" />
-                            : <ChevronRight size={15} aria-hidden="true" />}
-                        </button>
-                      ) : <span className="team-member-row-spacer" aria-hidden="true" />}
-                      <span className="team-member-row-username">{member.username || member.referralCode || "-"}</span>
-                    </span>
-                  </td>
-                  <td>{member.firstName || member.name?.split(/\s+/)[0] || "-"}</td>
-                  <td>{member.lastName || member.name?.split(/\s+/).slice(1).join(" ") || "-"}</td>
-                  <td>{member.email || "-"}</td>
-                  <td><span className="team-level-tag">Level {member.level}</span></td>
-                  <td>{formatUsdt(member.selfInvestmentUsdt)}</td>
-                  <td>{formatUsdt(member.teamBusinessUsdt)}</td>
-                  <td>{formatDate(member.createdAt)}</td>
-                </tr>
-              ))}
+              {visibleRows.map((member) => {
+                const LevelIcon = LEVEL_ICONS[(member.level - 1) % LEVEL_ICONS.length];
+                const businessProgress = maxTeamBusiness > 0
+                  ? Math.min(100, (Number(member.teamBusinessUsdt || 0) / maxTeamBusiness) * 100)
+                  : 0;
+                return (
+                  <tr className="team-level-row" key={member.id} style={levelStyle(member.level)}>
+                    <td>{parentSerialNumbers.get(member.id) || ""}</td>
+                    <td>
+                      <span className="team-member-table-identity" style={{ "--member-depth": member.level - 1 }}>
+                        {member.children.length > 0 ? (
+                          <button
+                            className="team-member-row-toggle"
+                            type="button"
+                            aria-label={`${expandedIds.has(member.id) ? "Collapse" : "Expand"} referrals for ${member.username || member.name}`}
+                            aria-expanded={expandedIds.has(member.id)}
+                            disabled={filters.directOnly}
+                            onClick={() => toggleMember(member.id)}
+                          >
+                            {expandedIds.has(member.id)
+                              ? <ChevronDown size={15} aria-hidden="true" />
+                              : <ChevronRight size={15} aria-hidden="true" />}
+                          </button>
+                        ) : <span className="team-member-row-spacer" aria-hidden="true" />}
+                        <span className="team-member-avatar" aria-hidden="true">
+                          {(member.firstName || member.name || member.username || "?").trim().charAt(0).toUpperCase()}
+                        </span>
+                        <span className="team-member-row-username">{member.username || member.referralCode || "-"}</span>
+                      </span>
+                    </td>
+                    <td>{member.firstName || member.name?.split(/\s+/)[0] || "-"}</td>
+                    <td>{member.lastName || member.name?.split(/\s+/).slice(1).join(" ") || "-"}</td>
+                    <td>{member.email || "-"}</td>
+                    <td>
+                      <span className="team-level-tag">
+                        <LevelIcon size={13} aria-hidden="true" />
+                        Level {member.level}
+                      </span>
+                    </td>
+                    <td>{formatUsdt(member.selfInvestmentUsdt)}</td>
+                    <td>
+                      <span className="team-business-value">{formatUsdt(member.teamBusinessUsdt)}</span>
+                      <span className="team-business-track" aria-hidden="true">
+                        <span className="team-business-progress" style={{ width: `${businessProgress}%` }} />
+                      </span>
+                    </td>
+                    <td>{formatDate(member.createdAt)}</td>
+                  </tr>
+                );
+              })}
               {matchingCount === 0 ? (
                 <tr>
                   <td className="team-level-empty" colSpan="9">

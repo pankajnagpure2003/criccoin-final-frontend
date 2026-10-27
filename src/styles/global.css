@@ -4806,11 +4806,12 @@ input.mini-input {
   box-sizing: border-box;
   gap: 12px;
   padding: 17px;
-  border: 1px solid rgba(223, 168, 91, 0.32);
+  border: 1px solid rgba(73, 147, 195, 0.32);
   border-radius: 16px;
   background:
-    radial-gradient(ellipse at 0 0, rgba(212, 175, 55, 0.075), transparent 45%),
-    rgba(24, 20, 20, 0.92);
+    radial-gradient(ellipse at 0 0, rgba(32, 113, 166, 0.14), transparent 48%),
+    linear-gradient(145deg, rgba(12, 23, 40, 0.97), rgba(7, 13, 25, 0.98));
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
 }
 
 .team-level-filters {
@@ -4874,23 +4875,25 @@ input.mini-input {
 .team-level-table-wrap {
   width: 100%;
   min-width: 0;
-  border: 1px solid rgba(223, 168, 91, 0.18);
-  border-radius: 11px;
-  background: rgba(8, 10, 12, 0.4);
+  overflow-x: auto;
+  border: 1px solid rgba(246, 200, 68, 0.44);
+  border-radius: 12px;
+  background: rgba(5, 11, 21, 0.8);
+  box-shadow: 0 0 20px rgba(246, 200, 68, 0.08);
 }
 
 .team-level-table {
   width: 100%;
-  min-width: 100%;
+  min-width: 1180px;
   border-collapse: separate;
   border-spacing: 0;
 }
 
 .team-level-table th {
-  padding: 12px 11px;
-  color: #201908;
-  background: linear-gradient(135deg, #f5d05c, #e8b83f);
-  font-size: 10px;
+  padding: 13px 12px;
+  color: #17120a;
+  background: linear-gradient(135deg, #ffdf71, #f3bb35 60%, #e5a921);
+  font-size: 11px;
   font-weight: 800;
   text-transform: none;
   white-space: nowrap;
@@ -4905,24 +4908,25 @@ input.mini-input {
 }
 
 .team-level-table td {
-  padding: 12px 11px;
+  padding: 11px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.065);
   color: #e7e3e1;
-  font-size: 11px;
+  font-size: 12px;
   vertical-align: middle;
   white-space: nowrap;
 }
 
 .team-level-table .team-level-row {
-  background: linear-gradient(90deg, var(--team-level-surface), transparent 75%);
+  background: linear-gradient(90deg, var(--team-level-surface), rgba(12, 21, 35, 0.5) 76%);
+  transition: background 0.18s ease;
 }
 
 .team-level-table .team-level-row > td:first-child {
-  box-shadow: inset 3px 0 0 var(--team-level-accent);
+  box-shadow: inset 4px 0 0 var(--team-level-accent);
 }
 
 .team-level-table .team-level-row:hover {
-  background: linear-gradient(90deg, var(--team-level-surface), rgba(255, 255, 255, 0.035));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--team-level-accent) 15%, transparent), rgba(255, 255, 255, 0.045));
 }
 
 .team-level-table tbody tr:hover {
@@ -4937,8 +4941,25 @@ input.mini-input {
   display: inline-flex;
   min-width: 0;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   padding-left: calc(var(--member-depth, 0) * 18px);
+}
+
+.team-member-avatar {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--team-level-accent) 76%, white 8%);
+  border-radius: 50%;
+  color: #fff;
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--team-level-accent) 90%, white), transparent 52%),
+    color-mix(in srgb, var(--team-level-accent) 45%, #06111f);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--team-level-accent) 25%, transparent);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .team-member-row-username {
@@ -4982,13 +5003,42 @@ input.mini-input {
 
 .team-level-tag {
   display: inline-flex;
-  padding: 5px 8px;
-  border: 1px solid color-mix(in srgb, var(--team-level-accent, #e8bd48) 55%, transparent);
+  min-width: 86px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--team-level-accent, #e8bd48) 80%, transparent);
   border-radius: 999px;
   color: var(--team-level-accent, #e8bd48);
-  background: color-mix(in srgb, var(--team-level-accent, #e8bd48) 12%, transparent);
+  background: color-mix(in srgb, var(--team-level-accent, #e8bd48) 14%, #07101e);
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--team-level-accent, #e8bd48) 10%, transparent),
+    0 0 10px color-mix(in srgb, var(--team-level-accent, #e8bd48) 14%, transparent);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.team-business-value {
+  display: block;
+}
+
+.team-business-track {
+  display: block;
+  width: 110px;
+  height: 6px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(114, 132, 160, 0.2);
+}
+
+.team-business-progress {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--team-level-accent), color-mix(in srgb, var(--team-level-accent) 72%, white));
+  box-shadow: 0 0 9px color-mix(in srgb, var(--team-level-accent) 52%, transparent);
 }
 
 .team-level-empty {
@@ -5279,7 +5329,7 @@ input.mini-input {
   }
 
   .team-level-table {
-    min-width: 1050px;
+    min-width: 1180px;
   }
 
   .team-level-table th,
